@@ -34,27 +34,27 @@ export default function Navbar() {
   const linkClass = ({ isActive }) =>
     `relative text-sm font-medium transition-colors duration-200 px-1 py-0.5
      after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-left
-     after:scale-x-0 after:transition-transform after:duration-200 after:bg-[#FFD100]
+     after:scale-x-0 after:transition-transform after:duration-200 after:bg-[#B9975B]
      hover:after:scale-x-100
-     ${isActive ? 'text-[#FFD100] after:scale-x-100' : 'text-white/85 hover:text-white'}`
+     ${isActive ? 'text-[#B9975B] after:scale-x-100' : 'text-white/85 hover:text-white'}`
 
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300
-        ${scrolled ? 'bg-[#002D72] shadow-xl shadow-black/30' : 'bg-[#002D72]'}`}
+        ${scrolled ? 'bg-[#00205B] shadow-xl shadow-black/30' : 'bg-[#00205B]'}`}
     >
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-16">
 
           {/* ── Logo ── */}
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 bg-[#FFD100] rounded-lg flex items-center justify-center
+            <div className="w-8 h-8 bg-[#B9975B] rounded-lg flex items-center justify-center
                             shadow-md group-hover:scale-110 transition-transform duration-200">
-              <TrendingUp size={16} className="text-[#002D72]" strokeWidth={2.5} />
+              <TrendingUp size={16} className="text-[#00205B]" strokeWidth={2.5} />
             </div>
             <div className="leading-tight">
               <p className="text-white font-bold text-sm tracking-wide">Surrey Capital</p>
-              <p className="text-[#FFD100] text-[10px] font-semibold tracking-widest uppercase">Research</p>
+              <p className="text-[#B9975B] text-[10px] font-semibold tracking-widest uppercase">Research</p>
             </div>
           </Link>
 
@@ -87,8 +87,8 @@ export default function Navbar() {
                           className={({ isActive }) =>
                             `block px-5 py-3 text-sm font-medium transition-colors duration-150
                              ${isActive
-                               ? 'bg-[#002D72] text-white'
-                               : 'text-gray-700 hover:bg-[#F2F2F2] hover:text-[#002D72]'}`
+                               ? 'bg-[#00205B] text-white'
+                               : 'text-gray-700 hover:bg-[#F5F5F5] hover:text-[#00205B]'}`
                           }
                         >
                           {child.label}
@@ -119,7 +119,7 @@ export default function Navbar() {
 
           {/* ── Mobile hamburger ── */}
           <button
-            className="md:hidden p-2 text-white hover:text-[#FFD100] transition-colors"
+            className="md:hidden p-2 text-white hover:text-[#B9975B] transition-colors"
             onClick={() => setMobileOpen((p) => !p)}
             aria-label="Toggle menu"
           >
@@ -141,7 +141,7 @@ export default function Navbar() {
                       onClick={() => setMobileOpen(false)}
                       className={({ isActive }) =>
                         `block py-2 px-3 rounded-lg text-sm font-medium transition-colors
-                         ${isActive ? 'bg-[#FFD100]/10 text-[#FFD100]' : 'text-white/80 hover:text-white hover:bg-white/5'}`
+                         ${isActive ? 'bg-[#B9975B]/10 text-[#B9975B]' : 'text-white/80 hover:text-white hover:bg-white/5'}`
                       }
                     >
                       ↳ {child.label}
@@ -155,7 +155,7 @@ export default function Navbar() {
                       onClick={() => setMobileOpen(false)}
                       className={({ isActive }) =>
                         `block py-2 px-3 rounded-lg text-sm font-medium transition-colors
-                         ${isActive ? 'bg-[#FFD100]/10 text-[#FFD100]' : 'text-white/80 hover:text-white hover:bg-white/5'}`
+                         ${isActive ? 'bg-[#B9975B]/10 text-[#B9975B]' : 'text-white/80 hover:text-white hover:bg-white/5'}`
                       }
                     >
                       {link.label}

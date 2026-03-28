@@ -8,11 +8,12 @@ export default {
     extend: {
       colors: {
         brand: {
-          blue:  '#002D72',   // Primary Blue  – Trust / Academic
-          gold:  '#FFD100',   // Primary Gold  – Accents / Buttons
-          teal:  '#00A3AD',   // Accent Teal   – Data / Modernity
-          gray:  '#F2F2F2',   // Soft Gray     – Background
-          white: '#FFFFFF',
+          charcoal: '#36454F',   // Charcoal Gray – Text
+          blue:     '#00205B',   // Primary Blue  – Pantone 281
+          gold:     '#B9975B',   // Secondary Gold – Pantone 457
+          red:      '#E4002B',   // Accent Red    – Pantone 185
+          gray:     '#F5F5F5',   // Light Gray    – Background
+          white:    '#FFFFFF',
         },
       },
       fontFamily: {

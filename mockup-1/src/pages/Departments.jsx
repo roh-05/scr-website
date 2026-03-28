@@ -9,8 +9,8 @@ export const DEPARTMENTS = [
     description:
       'Our Equity Research department produces institutional-quality stock pitches with fundamental valuation models, qualitative business analysis, and forward-looking sector outlooks. Think Goldman Sachs initiation reports — but student-authored.',
     icon: TrendingUp,
-    color: '#002D72',
-    accent: '#FFD100',
+    color: '#00205B',
+    accent: '#B9975B',
     highlights: [
       'Weekly stock analysis with DCF & comparable company models',
       'Coverage of FTSE 100, S&P 500, and emerging markets',
@@ -29,8 +29,8 @@ export const DEPARTMENTS = [
     description:
       'The M&A department analyses live and announced transactions, building LBO models and synergy analyses that mirror the work of investment banking analysts. Members develop skills directly applicable to internship and graduate roles in IBD.',
     icon: Globe,
-    color: '#00A3AD',
-    accent: '#FFD100',
+    color: '#E4002B',
+    accent: '#B9975B',
     highlights: [
       'Live deal tear-sheets and strategic rationale breakdowns',
       'LBO modelling and accretion/dilution analysis',
@@ -49,8 +49,8 @@ export const DEPARTMENTS = [
     description:
       'From statistical factor models to Python-based systematic strategies, the Quant department bridges mathematics and markets. Members collaborate on backtested portfolios, derivatives pricing, and machine-learning applications in finance.',
     icon: BarChart2,
-    color: '#002D72',
-    accent: '#00A3AD',
+    color: '#00205B',
+    accent: '#E4002B',
     highlights: [
       'Multi-factor equity model (Value, Momentum, Quality)',
       'Options pricing with Black-Scholes and Monte Carlo',
@@ -69,8 +69,8 @@ export const DEPARTMENTS = [
     description:
       'The Economics department produces rigorous macroeconomic research covering monetary policy, global trade dynamics, and empirical data analysis. Reports are written with Bloomberg-style clarity and academic rigour.',
     icon: BookOpen,
-    color: '#00A3AD',
-    accent: '#FFD100',
+    color: '#E4002B',
+    accent: '#B9975B',
     highlights: [
       'UK & EU monetary policy tracker',
       'Inflation regime analysis (CPI, PPI, PCE)',
@@ -90,11 +90,11 @@ export default function Departments() {
       {/* Header */}
       <section
         className="pt-32 pb-16 px-6"
-        style={{ background: 'linear-gradient(135deg, #001848 0%, #002D72 100%)' }}
+        style={{ background: 'linear-gradient(135deg, #001438 0%, #00205B 100%)' }}
       >
         <div className="max-w-3xl mx-auto text-center text-white">
           <span className="inline-block px-3 py-1 mb-4 rounded-full text-xs font-semibold
-                           tracking-widest uppercase bg-[#FFD100]/15 text-[#FFD100] border border-[#FFD100]/30">
+                           tracking-widest uppercase bg-[#B9975B]/15 text-[#B9975B] border border-[#B9975B]/30">
             Our Departments
           </span>
           <h1 className="text-5xl font-bold mb-5">Four Areas of Expertise</h1>
@@ -127,10 +127,10 @@ export default function Departments() {
                   <d.icon size={24} style={{ color: d.color }} />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900 group-hover:text-[#002D72] transition-colors">
+                  <h2 className="text-xl font-bold text-gray-900 group-hover:text-[#00205B] transition-colors">
                     {d.name}
                   </h2>
-                  <p className="text-xs text-[#00A3AD] font-semibold tracking-wide mt-0.5">{d.tagline}</p>
+                  <p className="text-xs text-[#E4002B] font-semibold tracking-wide mt-0.5">{d.tagline}</p>
                 </div>
               </div>
               <p className="text-gray-600 text-sm leading-relaxed mt-4">{d.description}</p>

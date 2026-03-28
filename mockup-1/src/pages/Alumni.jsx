@@ -12,7 +12,7 @@ const ALUMNI = [
     dept: 'Equity Research',
     linkedin: 'https://linkedin.com',
     initials: 'EZ',
-    color: '#002D72',
+    color: '#00205B',
   },
   {
     name: 'Kwame Asante',
@@ -22,7 +22,7 @@ const ALUMNI = [
     dept: 'Equity Research',
     linkedin: 'https://linkedin.com',
     initials: 'KA',
-    color: '#00A3AD',
+    color: '#E4002B',
   },
   {
     name: 'Isabelle Moreau',
@@ -32,7 +32,7 @@ const ALUMNI = [
     dept: 'M&A Advisory',
     linkedin: 'https://linkedin.com',
     initials: 'IM',
-    color: '#002D72',
+    color: '#00205B',
   },
   {
     name: 'Rajan Patel',
@@ -42,7 +42,7 @@ const ALUMNI = [
     dept: 'Quantitative Finance',
     linkedin: 'https://linkedin.com',
     initials: 'RP',
-    color: '#4F46E5',
+    color: '#B9975B',
   },
   {
     name: 'Hannah Müller',
@@ -52,7 +52,7 @@ const ALUMNI = [
     dept: 'Economics',
     linkedin: 'https://linkedin.com',
     initials: 'HM',
-    color: '#059669',
+    color: '#36454F',
   },
   {
     name: 'Tyler Brooks',
@@ -62,7 +62,7 @@ const ALUMNI = [
     dept: 'Quantitative Finance',
     linkedin: 'https://linkedin.com',
     initials: 'TB',
-    color: '#4F46E5',
+    color: '#B9975B',
   },
 ]
 
@@ -92,11 +92,11 @@ export default function Alumni() {
       {/* Header */}
       <section
         className="pt-32 pb-16 px-6"
-        style={{ background: 'linear-gradient(135deg, #001848 0%, #002D72 100%)' }}
+        style={{ background: 'linear-gradient(135deg, #001438 0%, #00205B 100%)' }}
       >
         <div className="max-w-3xl mx-auto text-center text-white">
           <span className="inline-block px-3 py-1 mb-4 rounded-full text-xs font-semibold
-                           tracking-widest uppercase bg-[#FFD100]/15 text-[#FFD100] border border-[#FFD100]/30">
+                           tracking-widest uppercase bg-[#B9975B]/15 text-[#B9975B] border border-[#B9975B]/30">
             Our Network
           </span>
           <h1 className="text-5xl font-bold mb-5">Alumni &amp; Contact</h1>
@@ -111,7 +111,7 @@ export default function Alumni() {
       <section className="section bg-white">
         <div className="container-xl">
           <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-            <h2 className="text-3xl font-bold text-[#002D72]">Alumni Directory</h2>
+            <h2 className="text-3xl font-bold text-[#00205B]">Alumni Directory</h2>
             {/* filter pills */}
             <div className="flex flex-wrap gap-2">
               {DEPT_FILTERS.map((f) => (
@@ -120,8 +120,8 @@ export default function Alumni() {
                   onClick={() => setFilter(f)}
                   className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-150
                     ${filter === f
-                      ? 'bg-[#002D72] text-white shadow'
-                      : 'bg-[#F2F2F2] text-gray-600 hover:text-[#002D72]'}`}
+                      ? 'bg-[#00205B] text-white shadow'
+                      : 'bg-[#F2F2F2] text-gray-600 hover:text-[#00205B]'}`}
                 >
                   {f}
                 </button>
@@ -142,7 +142,7 @@ export default function Alumni() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-gray-900 truncate">{a.name}</p>
-                  <p className="text-xs text-[#002D72] font-semibold mt-0.5 truncate">{a.role}</p>
+                  <p className="text-xs text-[#00205B] font-semibold mt-0.5 truncate">{a.role}</p>
                   <p className="text-xs text-gray-500 truncate">{a.firm} · Class of {a.gradYear}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <span
@@ -155,7 +155,7 @@ export default function Alumni() {
                       href={a.linkedin}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[#0077B5] hover:text-[#002D72] transition-colors"
+                      className="text-[#0077B5] hover:text-[#00205B] transition-colors"
                     >
                       <LinkedInIcon size={14} />
                     </a>
@@ -173,7 +173,7 @@ export default function Alumni() {
 
           {/* Contact form */}
           <div>
-            <h2 className="text-3xl font-bold text-[#002D72] mb-2">Get in Touch</h2>
+            <h2 className="text-3xl font-bold text-[#00205B] mb-2">Get in Touch</h2>
             <p className="text-gray-500 text-sm mb-8">
               Whether you're a prospective member, an organisation wanting to partner, or an alumnus
               reconnecting — we'd love to hear from you.
@@ -189,7 +189,7 @@ export default function Alumni() {
                 </p>
                 <button
                   onClick={() => { setSubmitted(false); setForm({ name: '', email: '', subject: '', message: '' }) }}
-                  className="mt-6 text-[#002D72] text-sm font-semibold hover:underline"
+                  className="mt-6 text-[#00205B] text-sm font-semibold hover:underline"
                 >
                   Send another message
                 </button>
@@ -208,7 +208,7 @@ export default function Alumni() {
                       required
                       placeholder="Your full name"
                       className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl
-                                 focus:outline-none focus:ring-2 focus:ring-[#002D72]/25 focus:border-[#002D72]
+                                 focus:outline-none focus:ring-2 focus:ring-[#00205B]/25 focus:border-[#00205B]
                                  transition-all duration-200"
                     />
                   </div>
@@ -224,7 +224,7 @@ export default function Alumni() {
                       required
                       placeholder="you@surrey.ac.uk"
                       className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl
-                                 focus:outline-none focus:ring-2 focus:ring-[#002D72]/25 focus:border-[#002D72]
+                                 focus:outline-none focus:ring-2 focus:ring-[#00205B]/25 focus:border-[#00205B]
                                  transition-all duration-200"
                     />
                   </div>
@@ -239,7 +239,7 @@ export default function Alumni() {
                     onChange={handleChange}
                     placeholder="e.g. Partnership Enquiry"
                     className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl
-                               focus:outline-none focus:ring-2 focus:ring-[#002D72]/25 focus:border-[#002D72]
+                               focus:outline-none focus:ring-2 focus:ring-[#00205B]/25 focus:border-[#00205B]
                                transition-all duration-200"
                   />
                 </div>
@@ -255,7 +255,7 @@ export default function Alumni() {
                     rows={5}
                     placeholder="Tell us how we can help…"
                     className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl resize-none
-                               focus:outline-none focus:ring-2 focus:ring-[#002D72]/25 focus:border-[#002D72]
+                               focus:outline-none focus:ring-2 focus:ring-[#00205B]/25 focus:border-[#00205B]
                                transition-all duration-200"
                   />
                 </div>
@@ -263,11 +263,11 @@ export default function Alumni() {
                   type="submit"
                   disabled={loading}
                   className="btn-primary w-full justify-center disabled:opacity-60 disabled:cursor-not-allowed"
-                  style={{ color: '#002D72', background: '#FFD100' }}
+                  style={{ color: '#00205B', background: '#B9975B' }}
                 >
                   {loading ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-[#002D72]/30 border-t-[#002D72] rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-[#00205B]/30 border-t-[#00205B] rounded-full animate-spin" />
                       Sending…
                     </>
                   ) : (
@@ -280,7 +280,7 @@ export default function Alumni() {
 
           {/* Connect panel */}
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-[#002D72]">Connect with Us</h2>
+            <h2 className="text-3xl font-bold text-[#00205B]">Connect with Us</h2>
             <p className="text-gray-500 text-sm">
               Stay up to date with our latest research, events, and recruitment cycles.
             </p>
@@ -307,27 +307,27 @@ export default function Alumni() {
             <a
               href="mailto:info@surreycapitalresearch.com"
               className="flex items-center gap-4 p-5 rounded-2xl bg-white border border-gray-200
-                         hover:border-[#002D72]/40 hover:shadow-lg group transition-all duration-200"
+                         hover:border-[#00205B]/40 hover:shadow-lg group transition-all duration-200"
             >
-              <div className="w-12 h-12 rounded-xl bg-[#002D72] flex items-center justify-center text-white shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-[#00205B] flex items-center justify-center text-white shrink-0">
                 <Mail size={22} />
               </div>
               <div className="flex-1">
-                <p className="font-bold text-gray-900 group-hover:text-[#002D72] transition-colors">Email</p>
+                <p className="font-bold text-gray-900 group-hover:text-[#00205B] transition-colors">Email</p>
                 <p className="text-gray-500 text-xs">info@surreycapitalresearch.com</p>
               </div>
-              <ExternalLink size={15} className="text-gray-300 group-hover:text-[#002D72] transition-colors" />
+              <ExternalLink size={15} className="text-gray-300 group-hover:text-[#00205B] transition-colors" />
             </a>
 
             {/* Alumni note */}
-            <div className="rounded-2xl bg-[#002D72] text-white p-6">
-              <User size={22} className="text-[#FFD100] mb-3" />
+            <div className="rounded-2xl bg-[#00205B] text-white p-6">
+              <User size={22} className="text-[#B9975B] mb-3" />
               <h3 className="font-bold text-lg mb-2">Are you an SCR Alumnus?</h3>
               <p className="text-white/70 text-sm leading-relaxed mb-4">
                 If you graduated from SCR and aren't listed in our directory, we'd love to add you.
                 Send us your LinkedIn and we'll get you featured.
               </p>
-              <a href="mailto:alumni@surreycapitalresearch.com" className="btn-primary !text-[#002D72]">
+              <a href="mailto:alumni@surreycapitalresearch.com" className="btn-primary !text-[#00205B]">
                 <Mail size={14} /> Submit Your Profile
               </a>
             </div>

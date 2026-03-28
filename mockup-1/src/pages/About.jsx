@@ -10,7 +10,7 @@ const TEAM = [
     year: '3rd Year, Finance',
     linkedin: 'https://linkedin.com',
     initials: 'AC',
-    color: '#002D72',
+    color: '#00205B',
   },
   {
     name: 'James Okafor',
@@ -19,7 +19,7 @@ const TEAM = [
     year: '3rd Year, Maths & Economics',
     linkedin: 'https://linkedin.com',
     initials: 'JO',
-    color: '#00A3AD',
+    color: '#E4002B',
   },
   {
     name: 'Priya Sharma',
@@ -28,7 +28,7 @@ const TEAM = [
     year: '2nd Year, Finance',
     linkedin: 'https://linkedin.com',
     initials: 'PS',
-    color: '#002D72',
+    color: '#00205B',
   },
   {
     name: 'Luca Bianchi',
@@ -37,7 +37,7 @@ const TEAM = [
     year: '3rd Year, Economics',
     linkedin: 'https://linkedin.com',
     initials: 'LB',
-    color: '#00A3AD',
+    color: '#E4002B',
   },
   {
     name: 'Sophie Williams',
@@ -46,7 +46,7 @@ const TEAM = [
     year: '3rd Year, Mathematics',
     linkedin: 'https://linkedin.com',
     initials: 'SW',
-    color: '#002D72',
+    color: '#00205B',
   },
   {
     name: 'Omar Hassan',
@@ -55,7 +55,7 @@ const TEAM = [
     year: '2nd Year, Economics',
     linkedin: 'https://linkedin.com',
     initials: 'OH',
-    color: '#00A3AD',
+    color: '#E4002B',
   },
 ]
 
@@ -94,8 +94,8 @@ function FAQItem({ q, a }) {
         onClick={() => setOpen((p) => !p)}
         className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-gray-50 transition-colors"
       >
-        <span className="font-semibold text-[#002D72] text-sm">{q}</span>
-        {open ? <ChevronUp size={18} className="text-[#00A3AD] shrink-0" /> : <ChevronDown size={18} className="text-gray-400 shrink-0" />}
+        <span className="font-semibold text-[#00205B] text-sm">{q}</span>
+        {open ? <ChevronUp size={18} className="text-[#E4002B] shrink-0" /> : <ChevronDown size={18} className="text-gray-400 shrink-0" />}
       </button>
       {open && (
         <div className="px-6 pb-5 text-gray-600 text-sm leading-relaxed border-t border-gray-100 pt-3">
@@ -112,11 +112,11 @@ export default function About() {
       {/* Page header */}
       <section
         className="pt-32 pb-16 px-6"
-        style={{ background: 'linear-gradient(135deg, #001848 0%, #002D72 100%)' }}
+        style={{ background: 'linear-gradient(135deg, #001438 0%, #00205B 100%)' }}
       >
         <div className="max-w-3xl mx-auto text-center text-white">
           <span className="inline-block px-3 py-1 mb-4 rounded-full text-xs font-semibold
-                           tracking-widest uppercase bg-[#FFD100]/15 text-[#FFD100] border border-[#FFD100]/30">
+                           tracking-widest uppercase bg-[#B9975B]/15 text-[#B9975B] border border-[#B9975B]/30">
             About SCR
           </span>
           <h1 className="text-5xl font-bold mb-5">Meet the Team</h1>
@@ -143,15 +143,15 @@ export default function About() {
                   {m.initials}
                 </div>
                 <h3 className="font-bold text-gray-900 text-lg">{m.name}</h3>
-                <p className="text-[#002D72] font-semibold text-sm mt-0.5">{m.role}</p>
-                <p className="text-[#00A3AD] text-xs mt-0.5 font-medium">{m.dept}</p>
+                <p className="text-[#00205B] font-semibold text-sm mt-0.5">{m.role}</p>
+                <p className="text-[#E4002B] text-xs mt-0.5 font-medium">{m.dept}</p>
                 <p className="text-gray-400 text-xs mt-1">{m.year}</p>
                 <a
                   href={m.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold
-                             text-[#0077B5] hover:text-[#002D72] transition-colors duration-150"
+                             text-[#0077B5] hover:text-[#00205B] transition-colors duration-150"
                 >
                   <LinkedInIcon size={13} /> LinkedIn
                 </a>
@@ -166,17 +166,17 @@ export default function About() {
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
             <span className="inline-block px-3 py-1 mb-3 rounded-full text-xs font-semibold
-                             tracking-widest uppercase bg-[#002D72]/10 text-[#002D72]">
+                             tracking-widest uppercase bg-[#00205B]/10 text-[#00205B]">
               FAQ
             </span>
-            <h2 className="text-3xl font-bold text-[#002D72]">Frequently Asked Questions</h2>
+            <h2 className="text-3xl font-bold text-[#00205B]">Frequently Asked Questions</h2>
           </div>
           <div className="space-y-3">
             {FAQS.map((f) => <FAQItem key={f.q} {...f} />)}
           </div>
 
-          <div className="mt-12 rounded-2xl bg-[#002D72] text-white p-8 text-center">
-            <Mail size={28} className="mx-auto mb-3 text-[#FFD100]" />
+          <div className="mt-12 rounded-2xl bg-[#00205B] text-white p-8 text-center">
+            <Mail size={28} className="mx-auto mb-3 text-[#B9975B]" />
             <h3 className="text-xl font-bold mb-2">Still have questions?</h3>
             <p className="text-white/70 text-sm mb-5">Drop us a message and we'll get back to you within 48 hours.</p>
             <a href="mailto:info@surreycapitalresearch.com" className="btn-primary">

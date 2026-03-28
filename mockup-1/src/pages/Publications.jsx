@@ -104,10 +104,10 @@ const PUBLICATIONS = [
 const DEPARTMENTS = ['All', 'Equity Research', 'M&A Advisory', 'Quantitative Finance', 'Economics']
 
 const DEPT_COLOR = {
-  'Equity Research':    { bg: '#002D72', text: '#fff' },
-  'M&A Advisory':       { bg: '#00A3AD', text: '#fff' },
-  'Quantitative Finance': { bg: '#4F46E5', text: '#fff' },
-  'Economics':          { bg: '#059669', text: '#fff' },
+  'Equity Research':    { bg: '#00205B', text: '#fff' },
+  'M&A Advisory':       { bg: '#E4002B', text: '#fff' },
+  'Quantitative Finance': { bg: '#B9975B', text: '#fff' },
+  'Economics':          { bg: '#36454F', text: '#fff' },
 }
 
 function formatDate(str) {
@@ -137,11 +137,11 @@ export default function Publications() {
       {/* Header */}
       <section
         className="pt-32 pb-16 px-6"
-        style={{ background: 'linear-gradient(135deg, #001848 0%, #002D72 100%)' }}
+        style={{ background: 'linear-gradient(135deg, #001438 0%, #00205B 100%)' }}
       >
         <div className="max-w-3xl mx-auto text-center text-white">
           <span className="inline-block px-3 py-1 mb-4 rounded-full text-xs font-semibold
-                           tracking-widest uppercase bg-[#FFD100]/15 text-[#FFD100] border border-[#FFD100]/30">
+                           tracking-widest uppercase bg-[#B9975B]/15 text-[#B9975B] border border-[#B9975B]/30">
             Research Library
           </span>
           <h1 className="text-5xl font-bold mb-5">Publications</h1>
@@ -164,8 +164,8 @@ export default function Publications() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="w-full pl-10 pr-10 py-2.5 text-sm border border-gray-200 rounded-xl
-                         bg-white focus:outline-none focus:ring-2 focus:ring-[#002D72]/30
-                         focus:border-[#002D72] transition-all duration-200"
+                         bg-white focus:outline-none focus:ring-2 focus:ring-[#00205B]/30
+                         focus:border-[#00205B] transition-all duration-200"
             />
             {query && (
               <button
@@ -186,8 +186,8 @@ export default function Publications() {
                 onClick={() => setActiveDept(d)}
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-150
                   ${activeDept === d
-                    ? 'bg-[#002D72] text-white shadow-md'
-                    : 'bg-white text-gray-600 border border-gray-200 hover:border-[#002D72]/40 hover:text-[#002D72]'
+                    ? 'bg-[#00205B] text-white shadow-md'
+                    : 'bg-white text-gray-600 border border-gray-200 hover:border-[#00205B]/40 hover:text-[#00205B]'
                   }`}
               >
                 {d}
@@ -203,15 +203,15 @@ export default function Publications() {
           {/* result count */}
           <p className="text-gray-400 text-sm mb-6">
             Showing <span className="text-gray-700 font-semibold">{results.length}</span> of {PUBLICATIONS.length} reports
-            {activeDept !== 'All' && <> in <span className="text-[#002D72] font-semibold">{activeDept}</span></>}
+            {activeDept !== 'All' && <> in <span className="text-[#00205B] font-semibold">{activeDept}</span></>}
           </p>
 
           {/* Featured row */}
           {!query && activeDept === 'All' && (
             <div className="mb-10">
-              <h2 className="text-xs font-semibold uppercase tracking-widest text-[#FFD100] mb-4
+              <h2 className="text-xs font-semibold uppercase tracking-widest text-[#B9975B] mb-4
                              flex items-center gap-2">
-                <span className="w-6 h-0.5 bg-[#FFD100]" /> Featured Reports
+                <span className="w-6 h-0.5 bg-[#B9975B]" /> Featured Reports
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {PUBLICATIONS.filter((p) => p.featured).map((p) => (
@@ -232,7 +232,7 @@ export default function Publications() {
               <p className="text-gray-500 font-medium">No publications match your search.</p>
               <button
                 onClick={() => { setQuery(''); setActiveDept('All') }}
-                className="mt-4 text-[#002D72] text-sm font-semibold hover:underline"
+                className="mt-4 text-[#00205B] text-sm font-semibold hover:underline"
               >
                 Clear filters
               </button>
@@ -298,7 +298,7 @@ function ReportCard({ report: p, featured }) {
         <a
           href={p.pdfUrl}
           className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg text-xs font-semibold
-                     border border-gray-200 text-gray-600 hover:border-[#002D72]/40 hover:text-[#002D72]
+                     border border-gray-200 text-gray-600 hover:border-[#00205B]/40 hover:text-[#00205B]
                      transition-all duration-150"
         >
           <ExternalLink size={13} />

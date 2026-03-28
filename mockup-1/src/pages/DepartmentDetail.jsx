@@ -9,9 +9,9 @@ export default function DepartmentDetail() {
   if (!dept) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-center px-6 pt-24">
-        <h1 className="text-4xl font-bold text-[#002D72] mb-4">Department Not Found</h1>
+        <h1 className="text-4xl font-bold text-[#00205B] mb-4">Department Not Found</h1>
         <p className="text-gray-500 mb-8">The department you're looking for doesn't exist.</p>
-        <Link to="/departments" className="btn-primary" style={{ color: '#002D72', background: '#FFD100' }}>
+        <Link to="/departments" className="btn-primary" style={{ color: '#00205B', background: '#B9975B' }}>
           <ArrowLeft size={16} /> Back to Departments
         </Link>
       </div>
@@ -23,7 +23,7 @@ export default function DepartmentDetail() {
       {/* Hero */}
       <section
         className="pt-32 pb-16 px-6"
-        style={{ background: `linear-gradient(135deg, #001848 0%, ${dept.color} 100%)` }}
+        style={{ background: `linear-gradient(135deg, #001438 0%, ${dept.color} 100%)` }}
       >
         <div className="max-w-3xl mx-auto text-white">
           <Link
@@ -49,7 +49,7 @@ export default function DepartmentDetail() {
         <div className="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Highlights */}
           <div className="md:col-span-2">
-            <h2 className="text-2xl font-bold text-[#002D72] mb-6">What We Cover</h2>
+            <h2 className="text-2xl font-bold text-[#00205B] mb-6">What We Cover</h2>
             <ul className="space-y-3">
               {dept.highlights.map((h) => (
                 <li key={h} className="flex items-start gap-3">
@@ -60,13 +60,13 @@ export default function DepartmentDetail() {
             </ul>
 
             <div className="mt-10">
-              <h2 className="text-2xl font-bold text-[#002D72] mb-5">Recent Publications</h2>
+              <h2 className="text-2xl font-bold text-[#00205B] mb-5">Recent Publications</h2>
               <div className="space-y-3">
                 {dept.publications.map((p) => (
                   <div
                     key={p.title}
                     className="flex items-center justify-between p-4 rounded-xl border border-gray-200
-                               hover:border-[#002D72]/30 hover:shadow-md transition-all duration-200 cursor-pointer"
+                               hover:border-[#00205B]/30 hover:shadow-md transition-all duration-200 cursor-pointer"
                   >
                     <div className="flex items-center gap-3">
                       <FileText size={18} style={{ color: dept.color }} className="shrink-0" />
@@ -103,17 +103,17 @@ export default function DepartmentDetail() {
                 href="https://www.linkedin.com/company/surrey-capital-research/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-primary !text-[#002D72] w-full justify-center"
+                className="btn-primary !text-[#00205B] w-full justify-center"
               >
                 Follow SCR
               </a>
             </div>
 
             <div className="card border border-gray-200">
-              <h3 className="font-semibold text-[#002D72] mb-3 text-sm">The SCR Way</h3>
+              <h3 className="font-semibold text-[#00205B] mb-3 text-sm">The SCR Way</h3>
               {['Research-first culture', 'Peer review process', 'Real market data', 'Industry mentors'].map((s) => (
                 <div key={s} className="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#00A3AD]" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#E4002B]" />
                   <span className="text-gray-600 text-xs">{s}</span>
                 </div>
               ))}
