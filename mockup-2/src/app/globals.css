@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  /* Refined Brand Palette */
+  --color-surrey-blue: #354a61;     /* Primary: Dark Slate Blue */
+  --color-surrey-gold: #ac9741;     /* Accent: Dark Gold */
+  --color-surrey-light: #fafbf8;    /* Background: Off-White */
+  
+  /* New Secondary Colors */
+  --color-surrey-beige: #e9e4d4;    /* Light Beige for alternating sections */
+  --color-surrey-grey: #bfc5ca;     /* Light Blue-Grey */
+  --color-text-muted: #7b8797;      /* Medium Grey for metadata/borders */
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background-color: var(--color-surrey-light);
+  color: var(--color-surrey-blue); /* Ensures all default text uses Dark Slate Blue */
+  margin: 0;
+  padding: 0;
+}
