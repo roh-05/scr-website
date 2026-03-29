@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer"; // Import the new Footer
 
-// Configure Roboto with the specific weights we need
 const roboto = Roboto({
   weight: ['300', '400', '500', '700'],
   subsets: ["latin"],
@@ -22,12 +22,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${roboto.className} min-h-screen flex flex-col`}>
+      {/* Added antialiased for cleaner text rendering */}
+      <body className={`${roboto.className} antialiased min-h-screen flex flex-col`}>
         <Navbar />
-        {/* Main content wrapper */}
+        
+        {/* The flex-grow on <main> ensures that if a page has very little content, 
+          the Footer is still pushed to the bottom of the viewport.
+        */}
         <main className="flex-grow">
           {children}
         </main>
+
+        <Footer />
       </body>
     </html>
   );
