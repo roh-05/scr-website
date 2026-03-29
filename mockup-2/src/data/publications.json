@@ -1,0 +1,72 @@
+[
+    {
+        "id": "eq-001",
+        "title": "UK Semiconductor Sector Outlook Q1 2025",
+        "department": "Equity Research",
+        "authors": [
+            "Priya Sharma",
+            "James Lee"
+        ],
+        "date": "2025-03-10",
+        "tags": [
+            "Tech",
+            "FTSE",
+            "Semiconductors"
+        ],
+        "excerpt": "A comprehensive review of UK-listed semiconductor companies, supply-chain dynamics, and 12-month price targets for AMAT and ARM.",
+        "pdfUrl": "/reports/placeholder.pdf",
+        "featured": true
+    },
+    {
+        "id": "econ-001",
+        "title": "BOE Rate Path: Cutting Cycle Analysis",
+        "department": "Economic Research",
+        "authors": [
+            "Omar Hassan"
+        ],
+        "date": "2025-03-05",
+        "tags": [
+            "Macro",
+            "Monetary Policy",
+            "UK"
+        ],
+        "excerpt": "Using Taylor Rule frameworks and market-implied paths to forecast the Bank of England's rate trajectory through 2025.",
+        "pdfUrl": "/reports/placeholder.pdf",
+        "featured": false
+    },
+    {
+        "id": "quant-001",
+        "title": "Momentum + Low-Vol Factor Combo: UK Backtest",
+        "department": "Quantitative Research",
+        "authors": [
+            "Sophie Williams",
+            "David Park"
+        ],
+        "date": "2025-03-01",
+        "tags": [
+            "Factor Models",
+            "UK Equities",
+            "Backtesting"
+        ],
+        "excerpt": "A Python-based backtest of a combined Momentum and Low-Volatility factor strategy on FTSE 350 constituents (2015–2024).",
+        "pdfUrl": "/reports/placeholder.pdf",
+        "featured": true
+    },
+    {
+        "id": "ma-001",
+        "title": "Microsoft–Activision: Two Years On",
+        "department": "M&A",
+        "authors": [
+            "Luca Bianchi"
+        ],
+        "date": "2025-02-20",
+        "tags": [
+            "M&A",
+            "Gaming",
+            "Tech"
+        ],
+        "excerpt": "Post-merger integration review: examining synergy realisation, regulatory impact, and strategic implications for the gaming sector.",
+        "pdfUrl": "/reports/placeholder.pdf",
+        "featured": false
+    }
+]
