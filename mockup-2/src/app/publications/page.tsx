@@ -2,15 +2,13 @@
 
 import { useState, useMemo } from 'react';
 import { Search, Filter, FileText, Download, ExternalLink, X, Tag, LayoutGrid, List, ChevronDown, ChevronUp } from 'lucide-react';
-
+import Link from 'next/link';
 import dynamic from 'next/dynamic';
 
-// This forces the PDF renderer to only load in the browser, completely bypassing the server error.
 const PdfCover = dynamic(() => import('@/components/PdfCover'), {
     ssr: false,
-    loading: () => <div className="absolute inset-0 bg-gray-100 animate-pulse flex items-center justify-center text-gray-300"><FileText size={48} /></div>
+    loading: () => <div className="absolute inset-0 bg-gray-50 animate-pulse flex items-center justify-center text-gray-300"><FileText size={48} /></div>
 });
-
 
 import { DEPT_COLORS } from '@/lib/constants';
 import PUBLICATIONS from '@/data/publications.json';
@@ -30,7 +28,8 @@ function formatDate(str: string) {
 export default function PublicationsPage() {
     const [query, setQuery] = useState('');
     const [activeDept, setActiveDept] = useState('All');
-    const [viewMode, setViewMode] = useState<'gallery' | 'list'>('list');
+    // I've set the default back to 'gallery' so you can instantly see the new layout!
+    const [viewMode, setViewMode] = useState<'gallery' | 'list'>('gallery');
 
     const results = useMemo(() => {
         return PUBLICATIONS.filter((p) => {
@@ -91,10 +90,8 @@ export default function PublicationsPage() {
                         {/* Search & View Toggles */}
                         <div className="flex items-center gap-3 w-full lg:w-auto">
 
-                            {/* Pill-shaped Search Bar */}
                             <div className="relative flex-grow lg:w-72">
                                 <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-
                                 <input
                                     type="text"
                                     placeholder="Search publications..."
@@ -104,7 +101,6 @@ export default function PublicationsPage() {
                              bg-white focus:outline-none focus:ring-2 focus:ring-surrey-gold
                              focus:border-transparent transition-all duration-200 text-surrey-blue placeholder-gray-400 shadow-sm"
                                 />
-
                                 {query && (
                                     <button
                                         onClick={() => setQuery('')}
@@ -115,7 +111,6 @@ export default function PublicationsPage() {
                                 )}
                             </div>
 
-                            {/* Pill-shaped View Mode Toggles */}
                             <div className="flex bg-white border border-gray-200 rounded-full p-1 shadow-sm shrink-0">
                                 <button
                                     onClick={() => setViewMode('gallery')}
@@ -142,16 +137,17 @@ export default function PublicationsPage() {
                     {/* Results Area */}
                     {!query && activeDept === 'All' && featuredReports.length > 0 && viewMode === 'gallery' && (
                         <div className="mb-16">
-                            <h2 className="text-sm font-bold uppercase tracking-widest text-surrey-gold mb-6 flex items-center gap-3">
+                            <h2 className="text-sm font-bold uppercase tracking-widest text-surrey-gold mb-8 flex items-center gap-3">
                                 <span className="w-8 h-0.5 bg-surrey-gold" /> Featured Reports
                             </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {/* Updated Grid for Featured Reports */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-14 max-w-6xl mx-auto">
                                 {featuredReports.map((p) => (
                                     <ReportCard key={p.id} report={p} featured />
                                 ))}
                             </div>
-                            <div className="border-t border-gray-200 mt-16 mb-8" />
-                            <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-6 flex items-center gap-3">
+                            <div className="border-t border-gray-200 mt-20 mb-10" />
+                            <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-8 flex items-center gap-3">
                                 <span className="w-8 h-0.5 bg-gray-300" /> All Reports
                             </h2>
                         </div>
@@ -170,7 +166,9 @@ export default function PublicationsPage() {
                         </div>
                     ) : (
                         viewMode === 'gallery' ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            // ── UPDATED GALLERY GRID ──
+                            // 3 Columns, wider gaps (gap-x-10, gap-y-16), max-width to keep it centered perfectly
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-16 max-w-6xl mx-auto py-4">
                                 {results.map((p) => <ReportCard key={p.id} report={p} featured={false} />)}
                             </div>
                         ) : (
@@ -198,34 +196,24 @@ export default function PublicationsPage() {
     );
 }
 
-// ── COMPONENT 1: GALLERY VIEW CARD ──────────────────────────────
+// ── COMPONENT 1: MINIMALIST A4 GALLERY VIEW CARD ──────────────────────────
 
 function ReportCard({ report: p, featured }: { report: any, featured: boolean }) {
-    const deptStyle = DEPT_COLORS[p.department] || { bg: '#bfc5ca', text: '#fff' };
     return (
-        <div className={`bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-hidden group ${featured ? 'ring-2 ring-surrey-gold ring-offset-2' : ''}`}>
-            <div className="h-1.5 w-full shrink-0" style={{ backgroundColor: deptStyle.bg }}></div>
-            <div className="relative w-full aspect-[3/4] bg-surrey-light border-b border-gray-100 overflow-hidden">
+        <Link
+            href={`/publications/${p.id}`}
+            // Removed the 'ring' classes so featured reports no longer have a border
+            className="block w-full transition-transform duration-300 hover:-translate-y-2 focus:outline-none group"
+            aria-label={`View ${p.title}`}
+        >
+
+            {/* - Added border-gray-300 for a crisp paper edge.
+        - Changed to a uniform, centered dark shadow [0_0_15px]. 
+      */}
+            <div className="relative w-full aspect-[210/297] bg-white border border-gray-300 shadow-[0_0_15px_rgba(0,0,0,0.2)] group-hover:shadow-[0_10px_30px_rgba(0,0,0,0.25)] transition-all duration-300 flex items-center justify-center overflow-hidden">
                 <PdfCover pdfUrl={p.pdfUrl} title={p.title} />
             </div>
-            <div className="p-5 flex flex-col bg-white relative z-20">
-                <div className="flex items-center justify-between mb-4">
-                    <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border" style={{ backgroundColor: `${deptStyle.bg}10`, color: deptStyle.bg, borderColor: `${deptStyle.bg}30` }}>
-                        {p.department}
-                    </span>
-                    <span className="text-gray-500 text-xs font-medium">{formatDate(p.date)}</span>
-                </div>
-                <div className="flex gap-3">
-                    {/* Unified solid blue button */}
-                    <a href={p.pdfUrl} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-semibold text-white bg-surrey-blue hover:bg-[#2a3c50] transition-colors shadow-sm">
-                        <Download size={16} /> Download
-                    </a>
-                    <a href={p.pdfUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center px-4 py-2.5 rounded-md border-2 border-gray-200 text-gray-500 hover:border-surrey-blue hover:text-surrey-blue transition-colors bg-white shadow-sm">
-                        <ExternalLink size={16} />
-                    </a>
-                </div>
-            </div>
-        </div>
+        </Link>
     );
 }
 
@@ -270,12 +258,15 @@ function ReportTableRow({ report: p }: { report: any }) {
                     <td colSpan={4} className="p-0 border-b-2 border-gray-100">
                         <div className="p-8 px-6 md:px-12 bg-[#fafbf8] flex flex-col md:flex-row gap-8 items-start shadow-inner">
 
-                            <div className="w-32 md:w-48 shrink-0 aspect-[3/4] relative bg-white border border-gray-200 rounded-md overflow-hidden shadow-sm">
+                            {/* Also updated the expanded table thumbnail to use the sharp shadow */}
+                            <Link href={`/publications/${p.id}`} className="w-32 md:w-48 shrink-0 aspect-[210/297] relative bg-white border border-gray-300 shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.25)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center overflow-hidden">
                                 <PdfCover pdfUrl={p.pdfUrl} title={p.title} />
-                            </div>
+                            </Link>
 
-                            <div className="flex-1 flex flex-col">
-                                <h4 className="text-xl font-bold text-surrey-blue mb-2">{p.title}</h4>
+                            <div className="flex-1 flex flex-col h-full">
+                                <Link href={`/publications/${p.id}`} className="hover:underline text-surrey-blue">
+                                    <h4 className="text-xl font-bold mb-2">{p.title}</h4>
+                                </Link>
                                 <p className="text-sm font-medium text-gray-500 mb-5">
                                     Authored by <span className="text-surrey-blue font-bold">{p.authors.join(', ')}</span>
                                 </p>
@@ -293,7 +284,6 @@ function ReportTableRow({ report: p }: { report: any }) {
                                 </div>
 
                                 <div className="flex flex-wrap items-center gap-3 mt-auto">
-                                    {/* Unified solid blue button */}
                                     <a
                                         href={p.pdfUrl}
                                         target="_blank"
@@ -307,7 +297,6 @@ function ReportTableRow({ report: p }: { report: any }) {
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-md text-sm font-semibold text-white bg-surrey-blue hover:bg-[#2a3c50] transition-colors shadow-sm"
-
                                     >
                                         <ExternalLink size={16} /> View Full Screen
                                     </a>
