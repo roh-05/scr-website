@@ -3,8 +3,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Mail, MapPin, ExternalLink } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {

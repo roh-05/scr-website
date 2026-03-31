@@ -2,27 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import Script from "next/script";
 import LinkedInFeed from "@/components/LinkedInFeed";
-import prisma from "@/lib/prisma";
 
-// Helper to format the Prisma ENUMs (e.g., 'EQUITY_RESEARCH' -> 'Equity Research')
-const formatDepartment = (dept: string) => {
-  return dept
-    .split('_')
-    .map(word => word.charAt(0) + word.slice(1).toLowerCase())
-    .join(' ');
-};
-
-export default async function Home() {
-  // 1. Fetch live data from the database
-  const settings = await prisma.siteSettings.findUnique({ where: { id: 1 } });
-  
-  // 2. Fetch the 3 most recently published reports
-  const recentReports = await prisma.report.findMany({
-    where: { status: 'PUBLISHED' },
-    orderBy: { createdAt: 'desc' },
-    take: 3,
-  });
-
+export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* 1. Hero Section (Updated 50/50 Split) */}
@@ -36,7 +17,7 @@ export default async function Home() {
               <span className="text-surrey-gold">Financial Excellence</span>
             </h1>
             <p className="text-lg md:text-xl mb-10 text-gray-300 leading-relaxed max-w-lg">
-              {settings?.globalDescription || "Surrey Capital Research is the premier student-led financial organization bridging the gap between academic theory and institutional market reality."}
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
@@ -56,11 +37,14 @@ export default async function Home() {
 
           {/* Right Column: Abstract Data Visualization */}
           <div className="relative h-[300px] sm:h-[400px] lg:h-[450px] w-full rounded-xl overflow-hidden shadow-2xl border border-text-muted/30">
+            {/* Make sure to drop an image named "hero-visual.jpg" 
+              into your /public folder! 
+            */}
             <Image
               src="/hero-visual.webp"
               alt="Abstract quantitative data visualization"
               fill
-              sizes="(max-width: 1024px) 100vw, 50vw"
+              sizes="(max-width: 1024px) 100vw, 50vw" /* Add this line! */
               className="object-cover"
               priority
             />
@@ -114,37 +98,26 @@ export default async function Home() {
       <section className="py-20 bg-surrey-light px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
 
-          {/* Featured Publications (Database Driven) */}
+          {/* Featured Publications */}
           <div>
             <h2 className="text-3xl font-bold text-surrey-blue mb-8">Latest Publications</h2>
             <div className="space-y-6">
-              {recentReports.length > 0 ? (
-                recentReports.map((pub) => (
-                  <div key={pub.id} className="bg-white p-5 rounded-lg shadow-sm border border-gray-200 hover:border-surrey-gold transition-colors">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-xs font-bold uppercase tracking-wider text-surrey-gold">
-                        {formatDepartment(pub.department)}
-                      </span>
-                      <span className="text-xs text-text-muted">
-                        {new Date(pub.createdAt).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
-                      </span>
-                    </div>
-                    <h3 className="text-lg font-bold text-surrey-blue mb-3">{pub.title}</h3>
-                    <a 
-                      href={pub.fileUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="text-sm text-surrey-blue font-semibold hover:underline inline-flex items-center gap-1"
-                    >
-                      Read Report &rarr;
-                    </a>
+              {[
+                { title: "Q3 Global Macro Outlook", dept: "Economic Research", date: "Oct 2025" },
+                { title: "Initiating Coverage: Tech Sector", dept: "Equity Research", date: "Sep 2025" },
+                { title: "Volatility Modeling via Machine Learning", dept: "Quantitative Research", date: "Aug 2025" },
+              ].map((pub, i) => (
+                <div key={i} className="bg-white p-5 rounded-lg shadow-sm border border-gray-200 hover:border-surrey-gold transition-colors">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-surrey-gold">{pub.dept}</span>
+                    <span className="text-xs text-text-muted">{pub.date}</span>
                   </div>
-                ))
-              ) : (
-                <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200 text-center text-text-muted">
-                  No publications have been uploaded yet. Check back soon!
+                  <h3 className="text-lg font-bold text-surrey-blue mb-3">{pub.title}</h3>
+                  <Link href="/publications" className="text-sm text-surrey-blue font-semibold hover:underline">
+                    Read Report &rarr;
+                  </Link>
                 </div>
-              )}
+              ))}
             </div>
             <div className="mt-8">
               <Link href="/publications" className="inline-block bg-surrey-blue text-white px-6 py-2 rounded-md text-sm font-medium hover:bg-[#2a3c50] transition-colors">
@@ -154,8 +127,10 @@ export default async function Home() {
           </div>
 
           {/* Custom JSON LinkedIn Feed */}
+          {/* Custom JSON LinkedIn Feed */}
           <div className="flex flex-col h-full">
             <h2 className="text-3xl font-bold text-surrey-blue mb-8">Latest Updates</h2>
+            {/* The wrapper must explicitly say flex-1 to push the component to fill the space */}
             <div className="flex-1 min-h-0">
               <LinkedInFeed />
             </div>

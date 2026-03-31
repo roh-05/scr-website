@@ -33,3 +33,7 @@ dist-ssr
 # Vite
 *.tsb
 *.tsbuildinfo
+
+# AI/Agent generated artifacts
+artifacts/
+temp.md

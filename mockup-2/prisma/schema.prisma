@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+
+enum DepartmentType {
+  EXECUTIVE
+  EQUITY_RESEARCH
+  MERGERS_ACQUISITIONS
+  QUANTITATIVE_FINANCE
+  ECONOMIC_RESEARCH
+}
+
+enum MemberStatus {
+  ACTIVE
+  ALUMNI
+}
+
+enum ReportStatus {
+  DRAFT
+  PUBLISHED
+}
+
+// ─── TABLES (Models) ───
+
+model TeamMember {
+  id             String         @id @default(uuid())
+  firstName      String
+  lastName       String
+  role           String
+  department     DepartmentType
+  email          String         @unique
+  linkedinUrl    String?        
+  imageUrl       String?
+  status         MemberStatus   @default(ACTIVE)
+  isLeadership   Boolean        @default(false)
+  
+  // --- ALUMNI FIELDS ---
+  classYear      String?
+  currentRole    String?
+  currentCompany String?
+  location       String?
+  alumniQuote    String?
+
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Report {
+  id             String         @id @default(uuid())
+  title          String
+  department     DepartmentType
+  authorNames    String
+  status         ReportStatus   @default(DRAFT)
+  fileUrl        String         // Link to the PDF storage
+  fileSizeBytes  Int?
+  publishedAt    DateTime?
+  excerpt        String?        @db.Text
+  tags           String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model SiteSettings {
+  id                    Int      @id @default(1) // Forces only one row to ever exist
+  organizationName      String   @default("Surrey Capital Research")
+  universityAffiliation String   @default("University of Surrey")
+  globalDescription     String
+  contactEmail          String
+  linkedinUrl           String
+  officeAddress         String
+  maintenanceMode       Boolean  @default(false)
+  equityEmail           String   @default("equities@surreycapital.org")
+  mnaEmail              String   @default("mna@surreycapital.org")
+  quantEmail            String   @default("quant@surreycapital.org")
+  economicsEmail        String   @default("economics@surreycapital.org")
+  updatedAt             DateTime @updatedAt
+}
+
+model ContactSubmission {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  subject   String
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

@@ -1,41 +1,40 @@
-"use client";
-
-import { useState } from "react";
+// src/app/contact/page.tsx
 import Image from "next/image";
+import { getSiteSettings } from "@/actions/settings";
 import { 
   Mail, 
   MapPin, 
-  Send, 
   Building2, 
-  MessageSquare,
-  CheckCircle2
+  MessageSquare
 } from "lucide-react";
+import ContactForm from "@/components/ContactForm";
 
-// --- DEPARTMENT CONTACT DATA ---
-const DEPARTMENT_CONTACTS = [
-  { name: "Equity Research", email: "equities@surreycapital.org" },
-  { name: "Mergers & Acquisitions", email: "mna@surreycapital.org" },
-  { name: "Quantitative Finance", email: "quant@surreycapital.org" },
-  { name: "Economic Research", email: "economics@surreycapital.org" },
-];
+export default async function ContactPage() {
+  // Fetch settings directly as a Server Component
+  const settingsResult = await getSiteSettings();
+  const settings = settingsResult.success && settingsResult.data
+    ? (settingsResult.data as any)
+    : {
+        contactEmail: "contact@surreycapital.org",
+        officeAddress: "Surrey Business School\nUniversity of Surrey\nGuildford, GU2 7XH\nUnited Kingdom",
+        linkedinUrl: "https://linkedin.com/company/surrey-capital-research",
+        equityEmail: "equities@surreycapital.org",
+        mnaEmail: "mna@surreycapital.org",
+        quantEmail: "quant@surreycapital.org",
+        economicsEmail: "economics@surreycapital.org",
+      };
 
-export default function ContactPage() {
-  const [formStatus, setFormStatus] = useState<"idle" | "submitting" | "success">("idle");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormStatus("submitting");
-    setTimeout(() => {
-      setFormStatus("success");
-      setTimeout(() => setFormStatus("idle"), 3000);
-    }, 1500);
-  };
+  const dynamicDepartmentContacts = [
+    { name: "Equity Research", email: settings.equityEmail || "equities@surreycapital.org" },
+    { name: "Mergers & Acquisitions", email: settings.mnaEmail || "mna@surreycapital.org" },
+    { name: "Quantitative Finance", email: settings.quantEmail || "quant@surreycapital.org" },
+    { name: "Economic Research", email: settings.economicsEmail || "economics@surreycapital.org" },
+  ];
 
   return (
     <div className="bg-surrey-light min-h-screen pb-24">
       
       {/* ── HERO SECTION ── */}
-      {/* FIX: Increased pb-20 to pb-32 to create a much deeper blue canvas */}
       <section className="bg-surrey-blue text-surrey-light pt-28 pb-32 px-6">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-sm font-bold text-surrey-gold uppercase tracking-[0.2em] mb-4">Get in Touch</h1>
@@ -49,7 +48,6 @@ export default function ContactPage() {
       </section>
 
       {/* ── MAIN CONTENT GRID ── */}
-      {/* FIX: Increased -mt-8 to -mt-16 so the panels overlap the deep blue background significantly more */}
       <section className="max-w-7xl mx-auto px-6 -mt-16 relative z-10">
         <div className="grid lg:grid-cols-5 gap-8">
           
@@ -62,68 +60,7 @@ export default function ContactPage() {
               <h2 className="text-2xl font-bold text-surrey-blue">General Enquiries</h2>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label htmlFor="name" className="text-sm font-bold text-surrey-blue">Full Name</label>
-                  <input 
-                    type="text" 
-                    id="name" 
-                    required
-                    className="w-full bg-surrey-beige/50 border border-surrey-grey/40 text-surrey-blue rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 transition-all"
-                    placeholder="John Doe"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="email" className="text-sm font-bold text-surrey-blue">Email Address</label>
-                  <input 
-                    type="email" 
-                    id="email" 
-                    required
-                    className="w-full bg-surrey-beige/50 border border-surrey-grey/40 text-surrey-blue rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 transition-all"
-                    placeholder="john@example.com"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="subject" className="text-sm font-bold text-surrey-blue">Subject</label>
-                <select 
-                  id="subject"
-                  className="w-full bg-surrey-beige/50 border border-surrey-grey/40 text-surrey-blue rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 transition-all appearance-none"
-                >
-                  <option value="general">General Inquiry</option>
-                  <option value="recruitment">Recruitment & Applications</option>
-                  <option value="partnership">Corporate Partnership</option>
-                  <option value="alumni">Alumni Relations</option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="message" className="text-sm font-bold text-surrey-blue">Message</label>
-                <textarea 
-                  id="message" 
-                  rows={5}
-                  required
-                  className="w-full bg-surrey-beige/50 border border-surrey-grey/40 text-surrey-blue rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 transition-all resize-none"
-                  placeholder="How can we help you?"
-                ></textarea>
-              </div>
-
-              <button 
-                type="submit"
-                disabled={formStatus !== "idle"}
-                className={`w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${
-                  formStatus === "success" 
-                    ? "bg-green-600 text-white" 
-                    : "bg-surrey-blue text-surrey-light hover:bg-surrey-blue/90 shadow-md"
-                }`}
-              >
-                {formStatus === "idle" && <><Send size={18} /> Send Message</>}
-                {formStatus === "submitting" && "Sending..."}
-                {formStatus === "success" && <><CheckCircle2 size={18} /> Message Sent Successfully</>}
-              </button>
-            </form>
+            <ContactForm />
           </div>
 
           {/* RIGHT COLUMN: Directory & Socials */}
@@ -139,7 +76,18 @@ export default function ContactPage() {
               </div>
               
               <ul className="space-y-5">
-                {DEPARTMENT_CONTACTS.map((dept, idx) => (
+                {/* Global Contact injected from Database */}
+                <li className="group pb-5 border-b border-surrey-grey/30">
+                  <p className="text-sm font-bold text-surrey-blue mb-1">General Office</p>
+                  <a 
+                    href={`mailto:${settings.contactEmail}`} 
+                    className="text-text-muted hover:text-surrey-gold text-sm flex items-center gap-2 transition-colors"
+                  >
+                    <Mail size={14} /> {settings.contactEmail}
+                  </a>
+                </li>
+
+                {dynamicDepartmentContacts.map((dept, idx) => (
                   <li key={idx} className="group">
                     <p className="text-sm font-bold text-surrey-blue mb-1">{dept.name}</p>
                     <a 
@@ -159,25 +107,22 @@ export default function ContactPage() {
               
               <div className="flex items-start gap-3 mb-8">
                 <MapPin size={20} className="text-surrey-gold mt-1 shrink-0" />
-                <p className="text-surrey-light/80 text-sm leading-relaxed">
-                  Surrey Business School<br/>
-                  University of Surrey<br/>
-                  Guildford, GU2 7XH<br/>
-                  United Kingdom
+                <p className="text-surrey-light/80 text-sm leading-relaxed whitespace-pre-line">
+                  {settings.officeAddress}
                 </p>
               </div>
 
               <div className="pt-6 border-t border-surrey-light/10">
                 <p className="text-xs font-bold uppercase tracking-wider text-surrey-gold mb-4">Follow Our Network</p>
                 <a 
-                  href="https://linkedin.com/company/surrey-capital-research" 
+                  href={settings.linkedinUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center hover:bg-surrey-gold transition-colors group"
                   aria-label="Connect on LinkedIn"
                 >
                    <Image 
-                    src="/linkedin.svg" 
+                    src="/images/linkedin.svg" 
                     alt="LinkedIn" 
                     width={22} 
                     height={22} 

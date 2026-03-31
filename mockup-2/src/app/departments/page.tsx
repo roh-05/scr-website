@@ -1,14 +1,14 @@
-"use client";
-
 import Link from 'next/link';
 import { TrendingUp, Briefcase, Calculator, Globe, ArrowRight, FileText } from 'lucide-react';
 import { DEPT_COLORS } from '@/lib/constants';
-import PUBLICATIONS from '@/data/publications.json';
+import prisma from "@/lib/prisma";
+import { DepartmentType } from '@prisma/client';
 
 // ── DEPARTMENT DIRECTORY DATA ──
 const DESKS = [
   {
     id: 'equity-research',
+    type: DepartmentType.EQUITY_RESEARCH,
     name: 'Equity Research',
     icon: TrendingUp,
     description: 'Delivering deep-dive fundamental analysis, financial modeling, and actionable investment recommendations on publicly traded companies across global markets.',
@@ -16,6 +16,7 @@ const DESKS = [
   },
   {
     id: 'm-and-a',
+    type: DepartmentType.MERGERS_ACQUISITIONS,
     name: 'M&A',
     icon: Briefcase,
     description: 'Analyzing strategic rationale, synergy realization, and financial structuring of major mergers, acquisitions, and corporate restructuring events.',
@@ -23,6 +24,7 @@ const DESKS = [
   },
   {
     id: 'quantitative-research',
+    type: DepartmentType.QUANTITATIVE_FINANCE,
     name: 'Quantitative Research',
     icon: Calculator,
     description: 'Developing data-driven trading strategies, factor models, and algorithmic frameworks to identify market inefficiencies and optimize portfolio allocation.',
@@ -30,6 +32,7 @@ const DESKS = [
   },
   {
     id: 'economic-research',
+    type: DepartmentType.ECONOMIC_RESEARCH,
     name: 'Economic Research',
     icon: Globe,
     description: 'Forecasting macroeconomic trends, central bank policy shifts, and geopolitical developments to provide a top-down view of global asset classes.',
@@ -37,7 +40,20 @@ const DESKS = [
   }
 ];
 
-export default function DepartmentsIndexPage() {
+export default async function DepartmentsIndexPage() {
+  // Fetch real report counts from PostgreSQL grouping by department where published
+  const publishCounts = await prisma.report.groupBy({
+    by: ['department'],
+    where: { status: 'PUBLISHED' },
+    _count: { id: true }
+  });
+
+  // Convert the array into a quick lookup dictionary: { 'EQUITY_RESEARCH': 5, ... }
+  const countsMap = publishCounts.reduce((acc, current) => {
+    acc[current.department] = current._count.id;
+    return acc;
+  }, {} as Record<string, number>);
+
   return (
     <div className="min-h-screen bg-surrey-light flex flex-col">
       
@@ -63,8 +79,8 @@ export default function DepartmentsIndexPage() {
               const Icon = desk.icon;
               const deptStyle = DEPT_COLORS[desk.name] || { bg: '#bfc5ca', text: '#fff' };
               
-              // Dynamically count how many reports this specific desk has published
-              const reportCount = PUBLICATIONS.filter(p => p.department === desk.name).length;
+              // Map the live database count using the department type
+              const reportCount = countsMap[desk.type] || 0;
 
               return (
                 <Link 

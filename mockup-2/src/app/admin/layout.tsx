@@ -8,8 +8,10 @@ import {
   Users, 
   Settings, 
   LogOut,
-  TrendingUp
+  TrendingUp,
+  Inbox
 } from "lucide-react";
+import { logout } from "@/actions/auth";
 
 export default function AdminLayout({
   children,
@@ -30,7 +32,7 @@ export default function AdminLayout({
     <div className="min-h-screen bg-surrey-beige flex relative">
       
       {/* ── GLOBAL ADMIN SIDEBAR ── */}
-      <aside className="w-64 bg-surrey-blue text-white flex flex-col fixed h-full border-r border-surrey-blue/90 shadow-2xl z-20">
+      <aside className="w-64 bg-surrey-blue text-white flex flex-col fixed inset-y-0 left-0 border-r border-surrey-blue/90 shadow-2xl z-20">
         <div className="p-6 border-b border-white/10 flex items-center gap-3">
           <div className="w-8 h-8 bg-surrey-gold rounded flex items-center justify-center">
             <TrendingUp size={18} className="text-surrey-blue" strokeWidth={3} />
@@ -80,14 +82,27 @@ export default function AdminLayout({
                 : "text-white/70 hover:bg-white/5 hover:text-white font-medium"
             }`}
           >
-            <Settings size={18} /> Site Settings
+            <Settings size={18} /> Website editing
+          </Link>
+          
+          <Link 
+            href="/admin/enquiries" 
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+              isActive("/admin/enquiries") 
+                ? "bg-surrey-gold/20 text-surrey-gold font-bold" 
+                : "text-white/70 hover:bg-white/5 hover:text-white font-medium"
+            }`}
+          >
+            <Inbox size={18} /> Enquiries
           </Link>
         </nav>
 
         <div className="p-4 border-t border-white/10">
-          <button className="flex items-center gap-3 text-white/50 hover:text-red-400 w-full px-4 py-3 rounded-lg font-medium transition-colors">
-            <LogOut size={18} /> Sign Out
-          </button>
+          <form action={logout}>
+            <button type="submit" className="flex items-center gap-3 text-white/50 hover:text-red-400 w-full px-4 py-3 rounded-lg font-medium transition-colors cursor-pointer">
+              <LogOut size={18} /> Sign Out
+            </button>
+          </form>
         </div>
       </aside>
 

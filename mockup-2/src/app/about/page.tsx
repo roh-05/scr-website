@@ -1,8 +1,6 @@
-"use client";
-
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import prisma from "@/lib/prisma";
 import { 
   BarChart3, 
   Briefcase, 
@@ -12,7 +10,7 @@ import {
   ArrowRight 
 } from "lucide-react";
 
-// --- DATA CONFIGURATION ---
+// --- STATIC CONFIGURATION ---
 const RESEARCH_AREAS = [
   {
     title: "Equity Research",
@@ -40,13 +38,6 @@ const RESEARCH_AREAS = [
   }
 ];
 
-const LEADERSHIP = [
-  { name: "John Doe", role: "President", linkedin: "https://linkedin.com" },
-  { name: "Jane Smith", role: "Head of Equities", linkedin: "https://linkedin.com" },
-  { name: "Michael Chen", role: "Head of M&A", linkedin: "https://linkedin.com" },
-  { name: "Sarah Williams", role: "Head of Quant", linkedin: "https://linkedin.com" },
-];
-
 const FAQS = [
   {
     question: "Do I need prior financial experience to join?",
@@ -66,8 +57,15 @@ const FAQS = [
   }
 ];
 
-export default function AboutPage() {
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
+export default async function AboutPage() {
+  // 1. Fetch the leadership team directly from your Postgres database
+  const leadershipTeam = await prisma.teamMember.findMany({
+    where: { 
+      status: 'ACTIVE',
+      isLeadership: true 
+    },
+    orderBy: { lastName: 'asc' }
+  });
 
   return (
     <div className="bg-surrey-light min-h-screen">
@@ -96,7 +94,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* 2. WHAT WE RESEARCH - Using the new beige for alternate sections */}
+      {/* 2. WHAT WE RESEARCH */}
       <section className="py-24 px-6 bg-surrey-beige border-b border-surrey-grey/30">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
@@ -126,7 +124,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* 3. LEADERSHIP TEAM */}
+      {/* 3. LEADERSHIP TEAM (Database Driven) */}
       <section className="py-24 px-6 bg-surrey-light">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
@@ -137,37 +135,48 @@ export default function AboutPage() {
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {LEADERSHIP.map((leader, idx) => (
-              <div key={idx} className="flex flex-col items-center text-center">
-                <div className="w-40 h-40 rounded-full bg-surrey-grey/20 mb-6 overflow-hidden relative border-4 border-surrey-light shadow-lg">
-                  <Image 
-                    src="/headshot-placeholder.jpg" 
-                    alt={leader.name}
-                    fill
-                    className="object-cover"
-                    style={{ backgroundColor: 'var(--color-surrey-grey)' }} 
-                  />
+            {leadershipTeam.length > 0 ? (
+              leadershipTeam.map((leader) => (
+                <div key={leader.id} className="flex flex-col items-center text-center">
+                  <div className="w-40 h-40 rounded-full bg-surrey-grey/20 mb-6 overflow-hidden relative border-4 border-surrey-light shadow-lg">
+                    {leader.imageUrl ? (
+                      <Image 
+                        src={leader.imageUrl} 
+                        alt={`${leader.firstName} ${leader.lastName}`}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-surrey-grey/30 text-surrey-blue font-bold text-2xl">
+                        {leader.firstName[0]}{leader.lastName[0]}
+                      </div>
+                    )}
+                  </div>
+                  <h3 className="text-xl font-bold text-surrey-blue">{leader.firstName} {leader.lastName}</h3>
+                  <p className="text-surrey-gold font-medium text-sm mb-4">{leader.role}</p>
+                  
+                  {leader.linkedinUrl && (
+                    <a 
+                      href={leader.linkedinUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 rounded-full bg-surrey-blue flex items-center justify-center hover:bg-transparent transition-colors group border border-transparent hover:border-surrey-grey"
+                      aria-label={`Connect with ${leader.firstName} on LinkedIn`}
+                    >
+                      <Image 
+                        src="/images/linkedin.svg" 
+                        alt="LinkedIn" 
+                        width={18} 
+                        height={18} 
+                        className="brightness-0 invert group-hover:brightness-100 group-hover:invert-0 transition-all duration-300" 
+                      />
+                    </a>
+                  )}
                 </div>
-                <h3 className="text-xl font-bold text-surrey-blue">{leader.name}</h3>
-                <p className="text-surrey-gold font-medium text-sm mb-4">{leader.role}</p>
-                
-                <a 
-                  href={leader.linkedin} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-surrey-blue flex items-center justify-center hover:bg-transparent transition-colors group border border-transparent hover:border-surrey-grey"
-                  aria-label={`Connect with ${leader.name} on LinkedIn`}
-                >
-                  <Image 
-                    src="/linkedin.svg" 
-                    alt="LinkedIn" 
-                    width={18} 
-                    height={18} 
-                    className="brightness-0 invert group-hover:brightness-100 group-hover:invert-0 transition-all duration-300" 
-                  />
-                </a>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="col-span-full text-center text-text-muted">Leadership team profiles are currently being updated.</p>
+            )}
           </div>
         </div>
       </section>
@@ -192,7 +201,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* 5. FAQS */}
+      {/* 5. FAQS (CSS-Only Accordion) */}
       <section className="py-24 px-6 bg-surrey-light">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">
@@ -200,37 +209,25 @@ export default function AboutPage() {
           </div>
 
           <div className="space-y-4">
-            {FAQS.map((faq, idx) => {
-              const isOpen = openFaq === idx;
-              return (
-                <div 
-                  key={idx} 
-                  className={`border rounded-xl transition-colors duration-200 overflow-hidden ${
-                    isOpen ? 'border-surrey-gold bg-surrey-beige' : 'border-surrey-grey/50 bg-surrey-light hover:border-surrey-grey'
-                  }`}
-                >
-                  <button
-                    onClick={() => setOpenFaq(isOpen ? null : idx)}
-                    className="w-full text-left px-6 py-5 flex items-center justify-between focus:outline-none"
-                  >
-                    <span className="font-bold text-surrey-blue pr-4">{faq.question}</span>
-                    <ChevronDown 
-                      className={`text-surrey-gold transition-transform duration-300 shrink-0 ${isOpen ? 'rotate-180' : ''}`} 
-                      size={20} 
-                    />
-                  </button>
-                  <div 
-                    className={`px-6 transition-all duration-300 ease-in-out ${
-                      isOpen ? 'pb-5 opacity-100 max-h-40' : 'max-h-0 opacity-0 overflow-hidden'
-                    }`}
-                  >
-                    <p className="text-text-muted leading-relaxed text-sm">
-                      {faq.answer}
-                    </p>
-                  </div>
+            {FAQS.map((faq, idx) => (
+              <details 
+                key={idx} 
+                className="group border border-surrey-grey/50 bg-surrey-light rounded-xl overflow-hidden open:border-surrey-gold open:bg-surrey-beige transition-colors duration-200 [&_summary::-webkit-details-marker]:hidden"
+              >
+                <summary className="w-full text-left px-6 py-5 flex items-center justify-between cursor-pointer focus:outline-none select-none">
+                  <span className="font-bold text-surrey-blue pr-4">{faq.question}</span>
+                  <ChevronDown 
+                    className="text-surrey-gold transition-transform duration-300 shrink-0 group-open:rotate-180" 
+                    size={20} 
+                  />
+                </summary>
+                <div className="px-6 pb-5">
+                  <p className="text-text-muted leading-relaxed text-sm">
+                    {faq.answer}
+                  </p>
                 </div>
-              );
-            })}
+              </details>
+            ))}
           </div>
         </div>
       </section>
