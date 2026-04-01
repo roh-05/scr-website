@@ -40,8 +40,14 @@ const DESKS = [
   }
 ];
 
+import { getSiteSettings } from "@/actions/settings";
+
 export default async function DepartmentsIndexPage() {
-  // Fetch real report counts from PostgreSQL grouping by department where published
+  // 1. Fetch live settings for the header
+  const settingsResult = await getSiteSettings();
+  const settings = (settingsResult.success ? settingsResult.data : null) as any;
+
+  // 2. Fetch real report counts from PostgreSQL grouping by department where published
   const publishCounts = await prisma.report.groupBy({
     by: ['department'],
     where: { status: 'PUBLISHED' },
@@ -63,9 +69,11 @@ export default async function DepartmentsIndexPage() {
           <span className="inline-block px-4 py-1.5 mb-6 rounded-full text-xs font-bold tracking-widest uppercase bg-surrey-gold/20 text-surrey-gold border border-surrey-gold/30 shadow-sm">
             Our Organization
           </span>
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">Research Desks</h1>
+          <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">
+            {settings?.deptIndexTitle || "Research Desks"}
+          </h1>
           <p className="text-gray-300 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
-            Explore our specialized research divisions. Each desk produces institutional-grade analysis tailored to their specific market mandate.
+            {settings?.deptIndexIntro || "Explore our specialized research divisions. Each desk produces institutional-grade analysis tailored to their specific market mandate."}
           </p>
         </div>
         <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#ac9741 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>

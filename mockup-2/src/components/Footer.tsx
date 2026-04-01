@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Mail, MapPin, ExternalLink } from "lucide-react";
 import { usePathname } from "next/navigation";
 
-export default function Footer() {
+export default function Footer({ settings }: { settings?: any }) {
   const pathname = usePathname();
 
   if (pathname?.startsWith("/admin")) {
@@ -36,11 +36,10 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           
-          {/* Brand Column */}
           <div className="space-y-6">
             <Link href="/" className="flex items-center gap-3 group focus:outline-none">
               <Image
-                src="/scr-logo.jpg"
+                src={settings?.logoUrl || "/scr-logo.jpg"}
                 alt="Surrey Capital Research Logo"
                 width={45}
                 height={45}
@@ -48,19 +47,19 @@ export default function Footer() {
               />
               <div className="flex flex-col">
                 <span className="font-bold text-lg leading-tight group-hover:text-surrey-gold transition-colors">
-                  Surrey Capital Research
+                  {settings?.siteName || "Surrey Capital Research"}
                 </span>
                 <span className="text-[10px] text-surrey-gold font-medium tracking-widest uppercase">
-                  University of Surrey
+                  {settings?.siteTagline || "University of Surrey"}
                 </span>
               </div>
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
-              Empowering the next generation of financial leaders through rigorous, student-led investment analysis and economic research.
+              {settings?.heroSubtitle || "Empowering the next generation of financial leaders through rigorous, student-led investment analysis and economic research."}
             </p>
             <div className="flex gap-4">
               <a 
-                href="https://linkedin.com/company/surrey-capital-research" 
+                href={settings?.linkedinUrl || "https://linkedin.com/company/surrey-capital-research"} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-surrey-gold hover:text-surrey-blue transition-all duration-300 group"
@@ -75,7 +74,7 @@ export default function Footer() {
                 />
               </a>
               <a 
-                href="mailto:contact@surreycapitalresearch.com" 
+                href={`mailto:${settings?.contactEmail || "contact@surreycapitalresearch.com"}`} 
                 className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-surrey-gold hover:text-surrey-blue transition-all duration-300"
                 aria-label="Email"
               >
@@ -120,10 +119,8 @@ export default function Footer() {
             <div className="space-y-6">
               <div className="flex gap-3 items-start">
                 <MapPin size={18} className="text-surrey-gold shrink-0 mt-0.5" />
-                <p className="text-gray-400 text-sm leading-relaxed">
-                  University of Surrey<br />
-                  Guildford, GU2 7XH<br />
-                  United Kingdom
+                <p className="text-gray-400 text-sm leading-relaxed whitespace-pre-line">
+                  {settings?.officeAddress || "University of Surrey\nGuildford, GU2 7XH\nUnited Kingdom"}
                 </p>
               </div>
               <ul className="space-y-4 mt-2">
@@ -155,7 +152,7 @@ export default function Footer() {
         {/* Bottom Bar - Centered */}
         <div className="pt-8 border-t border-white/5 flex justify-center items-center">
           <p className="text-gray-500 text-xs text-center">
-            © {currentYear} Surrey Capital Research. All rights reserved.
+            {settings?.footerCopyright || `© ${currentYear} Surrey Capital Research. All rights reserved.`}
           </p>
         </div>
       </div>

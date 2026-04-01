@@ -3,6 +3,7 @@ import Image from "next/image";
 import Script from "next/script";
 import LinkedInFeed from "@/components/LinkedInFeed";
 import prisma from "@/lib/prisma";
+import { getSiteSettings } from "@/actions/settings";
 
 // Helper to format the Prisma ENUMs (e.g., 'EQUITY_RESEARCH' -> 'Equity Research')
 const formatDepartment = (dept: string) => {
@@ -14,7 +15,8 @@ const formatDepartment = (dept: string) => {
 
 export default async function Home() {
   // 1. Fetch live data from the database
-  const settings = await prisma.siteSettings.findUnique({ where: { id: 1 } });
+  const settingsResult = await getSiteSettings();
+  const settings = (settingsResult.success ? settingsResult.data : null) as any;
   
   // 2. Fetch the 3 most recently published reports
   const recentReports = await prisma.report.findMany({
@@ -32,11 +34,10 @@ export default async function Home() {
           {/* Left Column: Text & CTA */}
           <div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
-              Student-Led <br className="hidden lg:block" />
-              <span className="text-surrey-gold">Financial Excellence</span>
+              {settings?.heroTitle || "Student-Led Financial Excellence"}
             </h1>
             <p className="text-lg md:text-xl mb-10 text-gray-300 leading-relaxed max-w-lg">
-              {settings?.globalDescription || "Surrey Capital Research is the premier student-led financial organization bridging the gap between academic theory and institutional market reality."}
+              {settings?.heroSubtitle || "Surrey Capital Research is the premier student-led financial organization bridging the gap between academic theory and institutional market reality."}
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
@@ -57,7 +58,7 @@ export default async function Home() {
           {/* Right Column: Abstract Data Visualization */}
           <div className="relative h-[300px] sm:h-[400px] lg:h-[450px] w-full rounded-xl overflow-hidden shadow-2xl border border-text-muted/30">
             <Image
-              src="/hero-visual.webp"
+              src={settings?.heroImageUrl || "/hero-visual.webp"}
               alt="Abstract quantitative data visualization"
               fill
               sizes="(max-width: 1024px) 100vw, 50vw"
@@ -74,9 +75,11 @@ export default async function Home() {
       {/* 2. Mission Statement */}
       <section className="py-16 bg-surrey-light px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-surrey-blue mb-6">Our Mission</h2>
+          <h2 className="text-3xl font-bold text-surrey-blue mb-6">
+            {settings?.missionTitle || "Our Mission"}
+          </h2>
           <p className="text-lg text-gray-700 leading-relaxed">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+            {settings?.missionDescription || "Surrey Capital Research is the University of Surrey's premier financial organization. We bridge the gap between academic theory and front-office reality by producing rigorous, unbiased market analysis."}
           </p>
         </div>
       </section>
@@ -166,9 +169,11 @@ export default async function Home() {
 
       {/* 5. Call to Action */}
       <section className="bg-surrey-blue text-white py-16 text-center px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold mb-4">Ready to Join the Team?</h2>
+        <h2 className="text-3xl font-bold mb-4">
+          {settings?.ctaHeading || "Ready to Join the Team?"}
+        </h2>
         <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          {settings?.ctaSubtext || "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}
         </p>
         <Link
           href="/contact"

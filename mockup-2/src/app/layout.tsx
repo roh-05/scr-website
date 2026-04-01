@@ -15,16 +15,21 @@ export const metadata: Metadata = {
   description: "Student-led equity, M&A, quantitative, and economic research.",
 };
 
-export default function RootLayout({
+import { getSiteSettings } from "@/actions/settings";
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settingsResult = await getSiteSettings();
+  const settings = (settingsResult.success ? settingsResult.data : null) as any;
+
   return (
     <html lang="en">
       {/* Added antialiased for cleaner text rendering */}
       <body className={`${roboto.className} antialiased min-h-screen flex flex-col`}>
-        <Navbar />
+        <Navbar settings={settings} />
         
         {/* The flex-grow on <main> ensures that if a page has very little content, 
           the Footer is still pushed to the bottom of the viewport.
@@ -33,7 +38,7 @@ export default function RootLayout({
           {children}
         </main>
 
-        <Footer />
+        <Footer settings={settings} />
       </body>
     </html>
   );

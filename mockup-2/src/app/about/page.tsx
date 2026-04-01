@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
+import { getSiteSettings } from "@/actions/settings";
+import * as LucideIcons from "lucide-react";
 import { 
   BarChart3, 
   Briefcase, 
@@ -10,55 +12,18 @@ import {
   ArrowRight 
 } from "lucide-react";
 
-// --- STATIC CONFIGURATION ---
-const RESEARCH_AREAS = [
-  {
-    title: "Equity Research",
-    icon: <BarChart3 className="text-surrey-gold" size={24} />,
-    description: "Fundamental analysis, financial modeling, and valuation of publicly traded companies across global sectors.",
-    href: "/departments/equity-research"
-  },
-  {
-    title: "Mergers & Acquisitions",
-    icon: <Briefcase className="text-surrey-gold" size={24} />,
-    description: "Strategic rationale, LBO modeling, and precedent transaction analysis for global deal flow.",
-    href: "/departments/m-and-a"
-  },
-  {
-    title: "Quantitative Finance",
-    icon: <Calculator className="text-surrey-gold" size={24} />,
-    description: "Algorithmic trading strategies, risk modeling, and backtesting using Python and advanced statistics.",
-    href: "/departments/quantitative-research"
-  },
-  {
-    title: "Economic Research",
-    icon: <Globe className="text-surrey-gold" size={24} />,
-    description: "Macroeconomic forecasting, central bank policy analysis, and global thematic trends.",
-    href: "/departments/economic-research"
-  }
-];
-
-const FAQS = [
-  {
-    question: "Do I need prior financial experience to join?",
-    answer: "No. While prior knowledge is helpful, we look for genuine passion, a strong work ethic, and a willingness to learn. We provide comprehensive training for all new analysts."
-  },
-  {
-    question: "What is the expected time commitment?",
-    answer: "Members typically dedicate 5-8 hours per week. This includes weekly departmental meetings, independent research, and financial modeling workshops."
-  },
-  {
-    question: "Can non-finance majors apply?",
-    answer: "Absolutely. We have successful analysts studying Engineering, Mathematics, Computer Science, Law, and more. Diverse academic backgrounds strengthen our research."
-  },
-  {
-    question: "When does recruitment take place?",
-    answer: "We primarily recruit at the beginning of the Autumn semester, with occasional limited recruitment windows in the Spring depending on departmental needs."
-  }
-];
+// Helper to render lucide icons from string name
+const DynamicIcon = ({ name, className, size = 24 }: { name: string, className?: string, size?: number }) => {
+  const IconComponent = (LucideIcons as any)[name] || LucideIcons.HelpCircle;
+  return <IconComponent className={className} size={size} />;
+};
 
 export default async function AboutPage() {
-  // 1. Fetch the leadership team directly from your Postgres database
+  // 1. Fetch live data from the database
+  const settingsResult = await getSiteSettings();
+  const settings = (settingsResult.success ? settingsResult.data : null) as any;
+
+  // 2. Fetch the leadership team directly from your Postgres database
   const leadershipTeam = await prisma.teamMember.findMany({
     where: { 
       status: 'ACTIVE',
@@ -66,6 +31,9 @@ export default async function AboutPage() {
     },
     orderBy: { lastName: 'asc' }
   });
+
+  const researchAreas = settings?.researchAreas || [];
+  const faqs = settings?.faqs || [];
 
   return (
     <div className="bg-surrey-light min-h-screen">
@@ -76,20 +44,29 @@ export default async function AboutPage() {
           <div>
             <h1 className="text-sm font-bold text-surrey-gold uppercase tracking-[0.2em] mb-4">Who We Are</h1>
             <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight leading-tight">
-              Student-Led. <br/> Institutional Standards.
+               {settings?.aboutHeroTitle || "Student-Led. Institutional Standards."}
             </h2>
             <p className="text-surrey-light/80 text-lg leading-relaxed mb-6">
-              Surrey Capital Research is the University of Surrey's premier financial organization. We bridge the gap between academic theory and front-office reality by producing rigorous, unbiased market analysis.
+              {settings?.aboutHeroDescription1 || "Surrey Capital Research is the University of Surrey's premier financial organization. We bridge the gap between academic theory and front-office reality by producing rigorous, unbiased market analysis."}
             </p>
             <p className="text-surrey-light/80 text-lg leading-relaxed">
-              Our mission is to empower the next generation of financial leaders by providing hands-on experience in financial modeling, macroeconomic forecasting, and strategic advisory.
+              {settings?.aboutHeroDescription2 || "Our mission is to empower the next generation of financial leaders by providing hands-on experience in financial modeling, macroeconomic forecasting, and strategic advisory."}
             </p>
           </div>
           <div className="relative h-[400px] rounded-2xl overflow-hidden border border-surrey-light/10 bg-surrey-blue/50 shadow-2xl">
-            <div className="absolute inset-0 flex items-center justify-center flex-col text-surrey-light/30">
-              <span className="font-bold tracking-widest uppercase">Placeholder Image</span>
-              <span className="text-sm">Recommend: Group Photo</span>
-            </div>
+            {settings?.aboutHeroImageUrl ? (
+               <Image 
+                src={settings.aboutHeroImageUrl} 
+                alt="About Hero Visual"
+                fill
+                className="object-cover"
+              />
+            ) : (
+                <div className="absolute inset-0 flex items-center justify-center flex-col text-surrey-light/30">
+                  <span className="font-bold tracking-widest uppercase">Placeholder Image</span>
+                  <span className="text-sm">Recommend: Group Photo</span>
+                </div>
+            )}
           </div>
         </div>
       </section>
@@ -98,21 +75,23 @@ export default async function AboutPage() {
       <section className="py-24 px-6 bg-surrey-beige border-b border-surrey-grey/30">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-surrey-blue mb-4">What We Research</h2>
+            <h2 className="text-3xl font-bold text-surrey-blue mb-4">
+              {settings?.researchTitle || "What We Research"}
+            </h2>
             <p className="text-text-muted max-w-2xl mx-auto">
-              Our organization is divided into four specialized desks, each operating with the rigor of a professional financial institution.
+              {settings?.researchIntro || "Our organization is divided into four specialized desks, each operating with the rigor of a professional financial institution."}
             </p>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {RESEARCH_AREAS.map((area, idx) => (
+            {researchAreas.map((area: any, idx: number) => (
               <Link 
-                href={area.href} 
+                href={area.href || "#"} 
                 key={idx}
                 className="bg-surrey-light p-8 rounded-2xl shadow-sm border border-surrey-grey/40 hover:shadow-md hover:border-surrey-gold/40 transition-all group"
               >
                 <div className="w-12 h-12 rounded-lg bg-surrey-gold/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  {area.icon}
+                  <DynamicIcon name={area.iconName || "BarChart3"} className="text-surrey-gold" />
                 </div>
                 <h3 className="text-lg font-bold text-surrey-blue mb-3">{area.title}</h3>
                 <p className="text-text-muted text-sm leading-relaxed">
@@ -120,6 +99,9 @@ export default async function AboutPage() {
                 </p>
               </Link>
             ))}
+            {researchAreas.length === 0 && (
+               <div className="col-span-full py-12 text-center text-text-muted italic">Research areas are being updated...</div>
+            )}
           </div>
         </div>
       </section>
@@ -130,7 +112,7 @@ export default async function AboutPage() {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-surrey-blue mb-4">Leadership Team</h2>
             <p className="text-text-muted max-w-2xl mx-auto">
-              Meet the executive committee dedicated to driving the strategic vision and research quality of Surrey Capital Research.
+              {settings?.leadershipIntro || "Meet the executive committee dedicated to driving the strategic vision and research quality of Surrey Capital Research."}
             </p>
           </div>
 
@@ -185,13 +167,13 @@ export default async function AboutPage() {
       <section className="bg-surrey-gold py-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-surrey-light mb-6">
-            Ready to Accelerate Your Career?
+            {settings?.joinHeading || "Ready to Accelerate Your Career?"}
           </h2>
           <p className="text-surrey-light/90 text-lg mb-8 max-w-2xl mx-auto font-medium">
-            Applications for the upcoming semester are currently open. Join a network of driven individuals and build the skills required for the modern financial sector.
+            {settings?.joinText || "Applications for the upcoming semester are currently open. Join a network of driven individuals and build the skills required for the modern financial sector."}
           </p>
           <a 
-            href="https://linkedin.com/company/surrey-capital-research" 
+            href={settings?.joinUrl || "https://linkedin.com/company/surrey-capital-research"} 
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-surrey-blue text-surrey-light px-8 py-4 rounded-lg font-bold hover:bg-surrey-blue/90 transition-colors shadow-lg"
@@ -209,7 +191,7 @@ export default async function AboutPage() {
           </div>
 
           <div className="space-y-4">
-            {FAQS.map((faq, idx) => (
+            {faqs.map((faq: any, idx: number) => (
               <details 
                 key={idx} 
                 className="group border border-surrey-grey/50 bg-surrey-light rounded-xl overflow-hidden open:border-surrey-gold open:bg-surrey-beige transition-colors duration-200 [&_summary::-webkit-details-marker]:hidden"
@@ -228,6 +210,9 @@ export default async function AboutPage() {
                 </div>
               </details>
             ))}
+            {faqs.length === 0 && (
+               <div className="text-center py-8 text-text-muted italic">No FAQs available at this time.</div>
+            )}
           </div>
         </div>
       </section>

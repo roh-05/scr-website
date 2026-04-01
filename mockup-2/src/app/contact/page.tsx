@@ -39,10 +39,10 @@ export default async function ContactPage() {
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-sm font-bold text-surrey-gold uppercase tracking-[0.2em] mb-4">Get in Touch</h1>
           <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
-            Contact <span className="text-surrey-gold">Our Team</span>
+            {settings?.contactHeroTitle || "Contact Our Team"}
           </h2>
           <p className="text-surrey-light/80 text-lg leading-relaxed max-w-2xl mx-auto">
-            Whether you are a prospective analyst, a corporate partner, or an alumnus, we welcome your inquiries. Reach out to us using the form below or contact a specific department directly.
+            {settings?.contactHeroDescription || "Whether you are a prospective analyst, a corporate partner, or an alumnus, we welcome your inquiries. Reach out to us using the form below or contact a specific department directly."}
           </p>
         </div>
       </section>

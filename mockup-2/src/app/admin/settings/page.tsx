@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getSiteSettings, updateSiteSettings } from "@/actions/settings";
+import { 
+  getSiteSettings, 
+  updateSiteSettings, 
+  updateFaqs, 
+  updateResearchAreas, 
+  updateDepartmentMetadata, 
+  updateProjects 
+} from "@/actions/settings";
 import { 
   Save, 
   Globe, 
@@ -12,16 +19,44 @@ import {
   ShieldAlert,
   CheckCircle2,
   Loader2,
-  Building2
+  Building2,
+  Home,
+  Info,
+  Layout,
+  Plus,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+  Image as ImageIcon,
+  ExternalLink,
+  MessageSquare
 } from "lucide-react";
+import { DepartmentType } from "@prisma/client";
+
+const TABS = [
+  { id: "global", label: "Global & SEO", icon: Globe },
+  { id: "homepage", label: "Homepage", icon: Home },
+  { id: "about", label: "About Page", icon: Info },
+  { id: "departments", label: "Departments", icon: Layout },
+  { id: "contact", label: "Contact Hero", icon: Mail },
+];
+
+const DEPT_LIST = [
+  { type: DepartmentType.EQUITY_RESEARCH, label: "Equity Research" },
+  { type: DepartmentType.MERGERS_ACQUISITIONS, label: "M&A" },
+  { type: DepartmentType.QUANTITATIVE_FINANCE, label: "Quantitative Finance" },
+  { type: DepartmentType.ECONOMIC_RESEARCH, label: "Economic Research" },
+];
 
 export default function SettingsPage() {
+  const [activeTab, setActiveTab] = useState("global");
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
-  // State to hold the live database data
-  const [formData, setFormData] = useState({
+  // State to hold all CMS data
+  const [data, setData] = useState<any>({
+    // SiteSettings primary fields
     organizationName: "",
     universityAffiliation: "",
     globalDescription: "",
@@ -33,276 +68,739 @@ export default function SettingsPage() {
     mnaEmail: "",
     quantEmail: "",
     economicsEmail: "",
+    heroTitle: "",
+    heroSubtitle: "",
+    heroImageUrl: "",
+    missionTitle: "",
+    missionDescription: "",
+    ctaHeading: "",
+    ctaSubtext: "",
+    aboutHeroTitle: "",
+    aboutHeroSubtitle: "",
+    aboutHeroDescription1: "",
+    aboutHeroDescription2: "",
+    aboutHeroImageUrl: "",
+    researchTitle: "",
+    researchIntro: "",
+    leadershipIntro: "",
+    joinHeading: "",
+    joinText: "",
+    joinUrl: "",
+    deptIndexTitle: "",
+    deptIndexIntro: "",
+    contactHeroTitle: "",
+    contactHeroDescription: "",
+    logoUrl: "",
+    footerCopyright: "",
+
+    // Arrays
+    faqs: [],
+    researchAreas: [],
+    deptMetadata: [],
+    projects: [],
   });
 
-  // 1. Fetch settings on page load
+  // Track active department for editing
+  const [activeDept, setActiveDept] = useState(DEPT_LIST[0].type);
+
   useEffect(() => {
     async function loadSettings() {
       const result = await getSiteSettings();
-      if (!result.success) {
-        console.error("Failed to load settings:", result.error);
-      } else if (result.data) {
-        setFormData((prev) => ({ ...prev, ...(result.data as any) }));
+      if (result.success && result.data) {
+        setData(result.data);
       }
       setIsLoading(false);
     }
     loadSettings();
   }, []);
 
-  // 2. Handle saving to the database
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handlePrimarySave = async () => {
     setIsSaving(true);
     setSaveSuccess(false);
-    
-    // We only send truthy updates
-    const result = await updateSiteSettings(formData);
-    
+    const result = await updateSiteSettings(data);
     setIsSaving(false);
     if (result.success) {
       setSaveSuccess(true);
-      // Reset the success button visually after 3 seconds
       setTimeout(() => setSaveSuccess(false), 3000);
     } else {
       alert(result.error || "Failed to save settings.");
     }
   };
 
-  // 3. Helper to update form state cleanly
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleSyncFaqs = async () => {
+    setIsSaving(true);
+    const result = await updateFaqs(data.faqs);
+    setIsSaving(false);
+    if (result.success) {
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } else {
+      alert(result.error || "Failed to sync FAQs.");
+    }
   };
 
-  // Loading State UI
+  const handleSyncResearchAreas = async () => {
+    setIsSaving(true);
+    const result = await updateResearchAreas(data.researchAreas);
+    setIsSaving(false);
+    if (result.success) {
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } else {
+      alert(result.error || "Failed to sync Research Areas.");
+    }
+  };
+
+  const handleUpdateDeptMeta = async () => {
+    setIsSaving(true);
+    const meta = data.deptMetadata.find((m: any) => m.department === activeDept) || { department: activeDept };
+    const result = await updateDepartmentMetadata(meta);
+    setIsSaving(false);
+    if (result.success) {
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } else {
+      alert(result.error || "Failed to update department info.");
+    }
+  };
+
+  const handleSyncProjects = async () => {
+    setIsSaving(true);
+    const projects = data.projects.filter((p: any) => p.department === activeDept);
+    const result = await updateProjects(activeDept, projects);
+    setIsSaving(false);
+    if (result.success) {
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } else {
+      alert(result.error || "Failed to sync projects.");
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setData((prev: any) => ({ ...prev, [name]: value }));
+  };
+
+  const handleDeptMetaChange = (field: string, value: string) => {
+    setData((prev: any) => {
+      const existing = prev.deptMetadata.find((m: any) => m.department === activeDept);
+      let newMeta;
+      if (existing) {
+        newMeta = prev.deptMetadata.map((m: any) => m.department === activeDept ? { ...m, [field]: value } : m);
+      } else {
+        newMeta = [...prev.deptMetadata, { department: activeDept, [field]: value }];
+      }
+      return { ...prev, deptMetadata: newMeta };
+    });
+  };
+
+  // Helper to move array items
+  const moveItem = (arrayName: string, index: number, direction: 'up' | 'down') => {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= data[arrayName].length) return;
+    
+    const newArray = [...data[arrayName]];
+    [newArray[index], newArray[newIndex]] = [newArray[newIndex], newArray[index]];
+    setData((prev: any) => ({ ...prev, [arrayName]: newArray }));
+  };
+
   if (isLoading) {
     return (
-      <main className="p-8 lg:p-12 max-w-5xl flex justify-center items-center min-h-[50vh]">
+      <main className="p-8 lg:p-12 max-w-6xl flex justify-center items-center min-h-[50vh]">
         <div className="flex items-center gap-3 text-surrey-blue font-bold">
           <Loader2 className="animate-spin text-surrey-gold" size={24} />
-          Loading Settings Vault...
+          Loading Website Content...
         </div>
       </main>
     );
   }
 
   return (
-    <main className="p-8 lg:p-12 max-w-5xl">
-      
-      <header className="mb-10 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
+    <main className="p-8 lg:p-12 max-w-6xl">
+      <header className="mb-10 flex flex-col md:flex-row md:justify-between md:items-end gap-6">
         <div>
           <h1 className="text-3xl font-bold text-surrey-blue flex items-center gap-3">
             <Settings2 className="text-surrey-gold" size={28} />
             Website Editing
           </h1>
-          <p className="text-text-muted mt-1">Manage global website configurations, contact details, edit UI elements and SEO.</p>
+          <p className="text-text-muted mt-1">Directly manage all front-facing elements of the Surrey Capital Research website.</p>
         </div>
-        <button 
-          onClick={handleSave}
-          disabled={isSaving}
-          className={`px-8 py-3 rounded-lg font-bold transition-all shadow-sm flex items-center justify-center gap-2 ${
-            saveSuccess 
-              ? "bg-green-600 text-white" 
-              : "bg-surrey-blue text-surrey-light hover:bg-surrey-blue/90"
-          } disabled:opacity-70`}
-        >
-          {isSaving ? <><Loader2 size={18} className="animate-spin" /> Saving...</> : saveSuccess ? <><CheckCircle2 size={18} /> Saved</> : <><Save size={18} /> Save Changes</>}
-        </button>
+        
+        <div className="flex gap-2">
+           {saveSuccess && (
+            <div className="flex items-center gap-1.5 text-green-600 bg-green-50 px-4 py-2 rounded-lg border border-green-200 animate-in fade-in slide-in-from-right-4">
+              <CheckCircle2 size={16} /> <span className="font-bold text-sm">Changes Saved</span>
+            </div>
+          )}
+        </div>
       </header>
 
-      <form className="space-y-8" onSubmit={handleSave}>
-        
-        {/* ── GENERAL INFORMATION ── */}
-        <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm">
-          <h2 className="text-xl font-bold text-surrey-blue mb-6 flex items-center gap-2 border-b border-surrey-grey/30 pb-4">
-            <Globe className="text-surrey-gold" size={20} /> General Information
-          </h2>
-          
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="block text-sm font-bold text-surrey-blue">Organization Name</label>
-              <input 
-                type="text" 
-                name="organizationName"
-                value={formData.organizationName}
-                onChange={handleChange}
-                className="w-full bg-surrey-light border border-surrey-grey/60 text-surrey-blue rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 transition-all" 
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-bold text-surrey-blue">University Affiliation</label>
-              <input 
-                type="text" 
-                name="universityAffiliation"
-                value={formData.universityAffiliation}
-                onChange={handleChange}
-                className="w-full bg-surrey-light border border-surrey-grey/60 text-surrey-blue rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 transition-all" 
-              />
-            </div>
-            <div className="space-y-2 md:col-span-2">
-              <label className="block text-sm font-bold text-surrey-blue">Global Site Description (SEO)</label>
-              <textarea 
-                rows={3}
-                name="globalDescription"
-                value={formData.globalDescription}
-                onChange={handleChange}
-                className="w-full bg-surrey-light border border-surrey-grey/60 text-surrey-blue rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 transition-all resize-none" 
-              />
-              <p className="text-xs text-text-muted">This text appears in Google search results and link previews.</p>
-            </div>
-          </div>
-        </section>
-
-        {/* ── CONTACT & SOCIAL ── */}
-        <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm">
-          <h2 className="text-xl font-bold text-surrey-blue mb-6 flex items-center gap-2 border-b border-surrey-grey/30 pb-4">
-            <Mail className="text-surrey-gold" size={20} /> Primary Contact & Social
-          </h2>
-          
-          <div className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="block text-sm font-bold text-surrey-blue">Global Contact Email</label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
-                  <input 
-                    type="email" 
-                    name="contactEmail"
-                    value={formData.contactEmail}
-                    onChange={handleChange}
-                    className="w-full bg-surrey-light border border-surrey-grey/60 text-surrey-blue rounded-lg py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 transition-all" 
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="block text-sm font-bold text-surrey-blue">LinkedIn Page URL</label>
-                <div className="relative">
-                  <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
-                  <input 
-                    type="url" 
-                    name="linkedinUrl"
-                    value={formData.linkedinUrl}
-                    onChange={handleChange}
-                    className="w-full bg-surrey-light border border-surrey-grey/60 text-surrey-blue rounded-lg py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 transition-all" 
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-sm font-bold text-surrey-blue">Office Address (Footer & Contact Page)</label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-3 text-text-muted" size={16} />
-                <textarea 
-                  rows={3}
-                  name="officeAddress"
-                  value={formData.officeAddress}
-                  onChange={handleChange}
-                  className="w-full bg-surrey-light border border-surrey-grey/60 text-surrey-blue rounded-lg py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 transition-all resize-none" 
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── DEPARTMENT EMAILS ── */}
-        <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm">
-          <h2 className="text-xl font-bold text-surrey-blue mb-6 flex items-center gap-2 border-b border-surrey-grey/30 pb-4">
-            <Building2 className="text-surrey-gold" size={20} /> Department Desks Email Routing
-          </h2>
-          <p className="text-sm text-text-muted mb-6 -mt-2">
-            These emails are publicly displayed on the Contact page for desk-specific inquiries.
-          </p>
-          
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="block text-sm font-bold text-surrey-blue">Equity Research</label>
-              <div className="relative">
-                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
-                <input 
-                  type="email" 
-                  name="equityEmail"
-                  value={formData.equityEmail}
-                  onChange={handleChange}
-                  className="w-full bg-surrey-light border border-surrey-grey/60 text-surrey-blue rounded-lg py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 transition-all" 
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-bold text-surrey-blue">Mergers & Acquisitions</label>
-              <div className="relative">
-                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
-                <input 
-                  type="email" 
-                  name="mnaEmail"
-                  value={formData.mnaEmail}
-                  onChange={handleChange}
-                  className="w-full bg-surrey-light border border-surrey-grey/60 text-surrey-blue rounded-lg py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 transition-all" 
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-bold text-surrey-blue">Quantitative Finance</label>
-              <div className="relative">
-                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
-                <input 
-                  type="email" 
-                  name="quantEmail"
-                  value={formData.quantEmail}
-                  onChange={handleChange}
-                  className="w-full bg-surrey-light border border-surrey-grey/60 text-surrey-blue rounded-lg py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 transition-all" 
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-bold text-surrey-blue">Economic Research</label>
-              <div className="relative">
-                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
-                <input 
-                  type="email" 
-                  name="economicsEmail"
-                  value={formData.economicsEmail}
-                  onChange={handleChange}
-                  className="w-full bg-surrey-light border border-surrey-grey/60 text-surrey-blue rounded-lg py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 transition-all" 
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── SYSTEM & DANGER ZONE ── */}
-        <section className="bg-red-50/50 p-8 rounded-2xl border border-red-100 shadow-sm">
-          <h2 className="text-xl font-bold text-red-700 mb-6 flex items-center gap-2 border-b border-red-200 pb-4">
-            <ShieldAlert className="text-red-600" size={20} /> System Settings
-          </h2>
-          
-          <div className="flex items-center justify-between bg-white p-5 rounded-xl border border-red-100">
-            <div>
-              <h3 className="font-bold text-surrey-blue">Maintenance Mode</h3>
-              <p className="text-sm text-text-muted mt-1">
-                When active, the public website will be hidden and display a "Coming Soon" or "Under Maintenance" message.
-              </p>
-            </div>
-            
-            {/* Custom Toggle Switch */}
-            <button 
-              type="button"
-              onClick={() => setFormData(prev => ({ ...prev, maintenanceMode: !prev.maintenanceMode }))}
-              className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 focus:ring-offset-2 ${
-                formData.maintenanceMode ? 'bg-red-600' : 'bg-surrey-grey'
+      {/* TABS NAVIGATION */}
+      <div className="flex overflow-x-auto pb-4 mb-8 gap-4 border-b border-surrey-grey/30 no-scrollbar">
+        {TABS.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-6 py-3 rounded-t-xl font-bold transition-all whitespace-nowrap ${
+                isActive 
+                  ? "bg-white border-t border-x border-surrey-grey/40 text-surrey-blue shadow-[0_-2px_10px_rgba(0,0,0,0.02)]" 
+                  : "text-text-muted hover:text-surrey-blue"
               }`}
             >
-              <span className="sr-only">Toggle Maintenance Mode</span>
-              <span 
-                className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                  formData.maintenanceMode ? 'translate-x-7' : 'translate-x-0'
-                }`}
-              />
+              <Icon size={18} className={isActive ? "text-surrey-gold" : ""} />
+              {tab.label}
             </button>
-          </div>
-        </section>
+          );
+        })}
+      </div>
 
-      </form>
+      <div className="space-y-10 animate-in fade-in duration-500">
+        
+        {/* ─── GLOBAL & SEO TAB ─── */}
+        {activeTab === "global" && (
+          <div className="space-y-8">
+            <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-surrey-blue flex items-center gap-2">
+                  <Globe className="text-surrey-gold" size={20} /> Identity & SEO
+                </h2>
+                <button onClick={handlePrimarySave} disabled={isSaving} className="btn-primary-sm">
+                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Save Tab
+                </button>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="label">Organization Name</label>
+                  <input type="text" name="organizationName" value={data.organizationName} onChange={handleChange} className="input" />
+                </div>
+                <div className="space-y-2">
+                  <label className="label">University Affiliation</label>
+                  <input type="text" name="universityAffiliation" value={data.universityAffiliation} onChange={handleChange} className="input" />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="label">Global SEO Description</label>
+                  <textarea rows={2} name="globalDescription" value={data.globalDescription} onChange={handleChange} className="input h-auto resize-none" />
+                </div>
+                 <div className="space-y-2">
+                  <label className="label">Logo URL</label>
+                  <input type="text" name="logoUrl" value={data.logoUrl || ""} onChange={handleChange} className="input" placeholder="/logo.svg" />
+                </div>
+                <div className="space-y-2">
+                  <label className="label">Footer Copyright Text</label>
+                  <input type="text" name="footerCopyright" value={data.footerCopyright} onChange={handleChange} className="input" />
+                </div>
+              </div>
+            </section>
+
+            <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm">
+               <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-surrey-blue flex items-center gap-2">
+                  <Mail className="text-surrey-gold" size={20} /> Contact Info & Social
+                </h2>
+              </div>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="label">Public Email</label>
+                  <input type="email" name="contactEmail" value={data.contactEmail} onChange={handleChange} className="input" />
+                </div>
+                <div className="space-y-2">
+                  <label className="label">LinkedIn Page</label>
+                  <input type="url" name="linkedinUrl" value={data.linkedinUrl} onChange={handleChange} className="input" />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="label">Office Address</label>
+                  <textarea rows={3} name="officeAddress" value={data.officeAddress} onChange={handleChange} className="input h-auto resize-none" />
+                </div>
+              </div>
+            </section>
+
+             {/* DANGER ZONE */}
+            <section className="bg-red-50/30 p-8 rounded-2xl border border-red-100 shadow-sm">
+              <h2 className="text-lg font-bold text-red-700 mb-6 flex items-center gap-2 border-b border-red-100 pb-4">
+                <ShieldAlert className="text-red-600" size={18} /> System Status
+              </h2>
+              <div className="flex items-center justify-between bg-white p-5 rounded-xl border border-red-100">
+                <div>
+                  <h3 className="font-bold text-surrey-blue">Maintenance Mode</h3>
+                  <p className="text-sm text-text-muted mt-1">Hides the public site under a "Coming Soon" page.</p>
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => handlePrimarySave()}
+                  className={`toggle ${data.maintenanceMode ? 'bg-red-600' : 'bg-surrey-grey'}`}
+                >
+                  <span className={`toggle-dot ${data.maintenanceMode ? 'translate-x-7' : 'translate-x-0'}`} />
+                </button>
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* ─── HOMEPAGE TAB ─── */}
+        {activeTab === "homepage" && (
+          <div className="space-y-8">
+            <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-surrey-blue flex items-center gap-2">
+                  <Home className="text-surrey-gold" size={20} /> Hero Section
+                </h2>
+                <button onClick={handlePrimarySave} disabled={isSaving} className="btn-primary-sm">
+                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Save Changes
+                </button>
+              </div>
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="label">Hero Title</label>
+                  <input type="text" name="heroTitle" value={data.heroTitle} onChange={handleChange} className="input text-lg font-bold" />
+                </div>
+                <div className="space-y-2">
+                  <label className="label">Hero Subtitle / Description</label>
+                  <textarea rows={3} name="heroSubtitle" value={data.heroSubtitle} onChange={handleChange} className="input h-auto resize-none" />
+                </div>
+                <div className="space-y-2">
+                  <label className="label">Hero Image URL (or path)</label>
+                  <div className="flex gap-4">
+                    <input type="text" name="heroImageUrl" value={data.heroImageUrl} onChange={handleChange} className="input flex-1" />
+                    <div className="w-12 h-12 rounded bg-surrey-light border border-surrey-grey/40 overflow-hidden relative shrink-0">
+                      <img src={data.heroImageUrl} alt="preview" className="object-cover w-full h-full" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm">
+              <h2 className="text-xl font-bold text-surrey-blue mb-6 border-b border-surrey-grey/20 pb-4">Mission Statement</h2>
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <label className="label">Heading</label>
+                  <input type="text" name="missionTitle" value={data.missionTitle} onChange={handleChange} className="input" />
+                </div>
+                <div className="md:col-span-2 space-y-2">
+                  <label className="label">Description</label>
+                  <textarea rows={3} name="missionDescription" value={data.missionDescription} onChange={handleChange} className="input h-auto resize-none" />
+                </div>
+              </div>
+            </section>
+
+            <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm">
+              <h2 className="text-xl font-bold text-surrey-blue mb-6 border-b border-surrey-grey/20 pb-4">Bottom Call-To-Action (CTA)</h2>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="label">Heading</label>
+                  <input type="text" name="ctaHeading" value={data.ctaHeading} onChange={handleChange} className="input" />
+                </div>
+                <div className="space-y-2">
+                  <label className="label">Subtext</label>
+                  <input type="text" name="ctaSubtext" value={data.ctaSubtext} onChange={handleChange} className="input" />
+                </div>
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* ─── ABOUT PAGE TAB ─── */}
+        {activeTab === "about" && (
+          <div className="space-y-8">
+            <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-surrey-blue flex items-center gap-2">
+                  <Info className="text-surrey-gold" size={20} /> Hero & Intro
+                </h2>
+                <button onClick={handlePrimarySave} disabled={isSaving} className="btn-primary-sm">
+                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Save Changes
+                </button>
+              </div>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2 md:col-span-2">
+                  <label className="label">About Hero Title</label>
+                  <input type="text" name="aboutHeroTitle" value={data.aboutHeroTitle} onChange={handleChange} className="input text-lg font-bold" />
+                </div>
+                <div className="space-y-2">
+                  <label className="label">Description Paragraph 1</label>
+                  <textarea rows={4} name="aboutHeroDescription1" value={data.aboutHeroDescription1} onChange={handleChange} className="input h-auto resize-none" />
+                </div>
+                <div className="space-y-2">
+                  <label className="label">Description Paragraph 2</label>
+                  <textarea rows={4} name="aboutHeroDescription2" value={data.aboutHeroDescription2} onChange={handleChange} className="input h-auto resize-none" />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="label">Research Section Title & Intro</label>
+                  <div className="flex gap-4">
+                    <input type="text" name="researchTitle" value={data.researchTitle} onChange={handleChange} className="input flex-[1]"  />
+                    <input type="text" name="researchIntro" value={data.researchIntro} onChange={handleChange} className="input flex-[2]" />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+             {/* RESEARCH AREAS EDITOR */}
+            <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-surrey-blue">Research Highlights Cards (About Page)</h2>
+                <div className="flex gap-2">
+                  <button onClick={() => setData((p:any) => ({ ...p, researchAreas: [...p.researchAreas, { title: "", description: "", iconName: "BarChart3", href: "" }] }))} className="btn-secondary-sm">
+                    <Plus size={16} /> Add Area
+                  </button>
+                  <button onClick={handleSyncResearchAreas} disabled={isSaving} className="btn-primary-sm">
+                    {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Sync Cards
+                  </button>
+                </div>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-4">
+                {data.researchAreas.map((area: any, idx: number) => (
+                  <div key={idx} className="p-5 border border-surrey-grey/30 rounded-xl bg-surrey-light/30 space-y-4">
+                    <div className="flex justify-between items-start">
+                      <input 
+                        type="text" 
+                        value={area.title} 
+                        onChange={(e) => setData((p:any) => ({ ...p, researchAreas: p.researchAreas.map((a:any, i:number) => i === idx ? { ...a, title: e.target.value } : a) }))} 
+                        className="font-bold bg-transparent border-none focus:ring-0 p-0 text-surrey-blue" 
+                        placeholder="Area Title"
+                      />
+                      <div className="flex gap-1">
+                        <button onClick={() => moveItem('researchAreas', idx, 'up')} className="text-text-muted hover:text-surrey-blue"><ChevronUp size={16} /></button>
+                        <button onClick={() => moveItem('researchAreas', idx, 'down')} className="text-text-muted hover:text-surrey-blue"><ChevronDown size={16} /></button>
+                        <button onClick={() => setData((p:any) => ({ ...p, researchAreas: p.researchAreas.filter((_:any, i:number) => i !== idx) }))} className="text-red-500 hover:text-red-700 ml-2"><Trash2 size={16} /></button>
+                      </div>
+                    </div>
+                    <textarea 
+                      rows={2} 
+                      value={area.description} 
+                      onChange={(e) => setData((p:any) => ({ ...p, researchAreas: p.researchAreas.map((a:any, i:number) => i === idx ? { ...a, description: e.target.value } : a) }))} 
+                      className="input text-sm h-auto bg-white" 
+                      placeholder="Short description..."
+                    />
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        value={area.iconName} 
+                        onChange={(e) => setData((p:any) => ({ ...p, researchAreas: p.researchAreas.map((a:any, i:number) => i === idx ? { ...a, iconName: e.target.value } : a) }))} 
+                        className="input text-xs" 
+                        placeholder="Icon Name (Lucide)"
+                      />
+                      <input 
+                        type="text" 
+                        value={area.href} 
+                        onChange={(e) => setData((p:any) => ({ ...p, researchAreas: p.researchAreas.map((a:any, i:number) => i === idx ? { ...a, href: e.target.value } : a) }))} 
+                        className="input text-xs" 
+                        placeholder="Link Path"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* FAQ EDITOR */}
+            <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-surrey-blue flex items-center gap-2">
+                  <MessageSquare className="text-surrey-gold" size={20} /> Frequently Asked Questions
+                </h2>
+                <div className="flex gap-2">
+                  <button onClick={() => setData((p:any) => ({ ...p, faqs: [...p.faqs, { question: "", answer: "" }] }))} className="btn-secondary-sm">
+                    <Plus size={16} /> Add FAQ
+                  </button>
+                  <button onClick={handleSyncFaqs} disabled={isSaving} className="btn-primary-sm">
+                    {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Sync FAQs
+                  </button>
+                </div>
+              </div>
+              <div className="space-y-4">
+                {data.faqs.map((faq: any, idx: number) => (
+                  <div key={idx} className="p-4 border border-surrey-grey/20 rounded-xl space-y-3">
+                    <div className="flex justify-between gap-4">
+                      <input 
+                        type="text" 
+                        value={faq.question} 
+                        onChange={(e) => setData((p:any) => ({ ...p, faqs: p.faqs.map((f:any, i:number) => i === idx ? { ...f, question: e.target.value } : f) }))} 
+                        className="input flex-1 font-bold" 
+                        placeholder="Question..."
+                      />
+                      <div className="flex gap-1 items-center">
+                        <button onClick={() => moveItem('faqs', idx, 'up')} className="text-text-muted hover:text-surrey-blue"><ChevronUp size={16} /></button>
+                        <button onClick={() => moveItem('faqs', idx, 'down')} className="text-text-muted hover:text-surrey-blue"><ChevronDown size={16} /></button>
+                        <button onClick={() => setData((p:any) => ({ ...p, faqs: p.faqs.filter((_:any, i:number) => i !== idx) }))} className="text-red-500 hover:text-red-700 ml-2"><Trash2 size={16} /></button>
+                      </div>
+                    </div>
+                    <textarea 
+                      rows={2} 
+                      value={faq.answer} 
+                      onChange={(e) => setData((p:any) => ({ ...p, faqs: p.faqs.map((f:any, i:number) => i === idx ? { ...f, answer: e.target.value } : f) }))} 
+                      className="input h-auto text-sm resize-none" 
+                      placeholder="Answer..."
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* ─── DEPARTMENTS TAB ─── */}
+        {activeTab === "departments" && (
+          <div className="space-y-8">
+             <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-surrey-blue">Index Header & Global Stats</h2>
+                <button onClick={handlePrimarySave} disabled={isSaving} className="btn-primary-sm">
+                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Save Changes
+                </button>
+              </div>
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <label className="label">Index Page Title</label>
+                  <input type="text" name="deptIndexTitle" value={data.deptIndexTitle} onChange={handleChange} className="input" />
+                </div>
+                <div className="md:col-span-2 space-y-2">
+                  <label className="label">Index Page Intro</label>
+                  <textarea rows={2} name="deptIndexIntro" value={data.deptIndexIntro} onChange={handleChange} className="input h-auto resize-none" />
+                </div>
+              </div>
+              
+              <div className="mt-8 pt-8 border-t border-surrey-grey/20 grid md:grid-cols-4 gap-6">
+                 {/* Quick Email Edits */}
+                 <div className="space-y-2">
+                  <label className="label text-[10px]">Equity Email</label>
+                  <input type="email" name="equityEmail" value={data.equityEmail} onChange={handleChange} className="input text-xs" />
+                </div>
+                <div className="space-y-2">
+                  <label className="label text-[10px]">M&A Email</label>
+                  <input type="email" name="mnaEmail" value={data.mnaEmail} onChange={handleChange} className="input text-xs" />
+                </div>
+                <div className="space-y-2">
+                  <label className="label text-[10px]">Quant Email</label>
+                  <input type="email" name="quantEmail" value={data.quantEmail} onChange={handleChange} className="input text-xs" />
+                </div>
+                <div className="space-y-2">
+                  <label className="label text-[10px]">Economics Email</label>
+                  <input type="email" name="economicsEmail" value={data.economicsEmail} onChange={handleChange} className="input text-xs" />
+                </div>
+              </div>
+            </section>
+
+            <div className="grid lg:grid-cols-4 gap-8">
+              {/* DESK SELECTOR SIDEBAR */}
+              <div className="lg:col-span-1 space-y-2">
+                 {DEPT_LIST.map((dept) => (
+                   <button 
+                    key={dept.type} 
+                    onClick={() => setActiveDept(dept.type)}
+                    className={`w-full text-left p-4 rounded-xl border font-bold transition-all ${
+                      activeDept === dept.type 
+                        ? "bg-surrey-blue text-white border-surrey-blue" 
+                        : "bg-white text-surrey-blue border-surrey-grey/30 hover:border-surrey-gold"
+                    }`}
+                   >
+                     {dept.label}
+                   </button>
+                 ))}
+              </div>
+
+              {/* DESK SPECIFIC EDITOR */}
+              <div className="lg:col-span-3 space-y-8">
+                <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm relative overflow-hidden">
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-bold text-surrey-blue">Desk Specifics: <span className="text-surrey-gold">{DEPT_LIST.find(d => d.type === activeDept)?.label}</span></h2>
+                    <button onClick={handleUpdateDeptMeta} disabled={isSaving} className="btn-primary-sm">
+                      {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Update Desk
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="label">Core Focus (Short String)</label>
+                      <input 
+                        type="text" 
+                        value={data.deptMetadata.find((m:any) => m.department === activeDept)?.focus || ""} 
+                        onChange={(e) => handleDeptMetaChange("focus", e.target.value)} 
+                        className="input" 
+                        placeholder="e.g., Fundamental Analysis & Valuation"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="label">Desk Overview / Mandatory Text</label>
+                      <textarea 
+                        rows={6} 
+                        value={data.deptMetadata.find((m:any) => m.department === activeDept)?.overview || ""} 
+                        onChange={(e) => handleDeptMetaChange("overview", e.target.value)} 
+                        className="input h-auto resize-none" 
+                        placeholder="The long-form description of the desk's activities..."
+                      />
+                    </div>
+                  </div>
+                </section>
+
+                <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm">
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-bold text-surrey-blue">Active Pipeline (Projects)</h2>
+                    <div className="flex gap-2">
+                       <button onClick={() => setData((p:any) => ({ ...p, projects: [...p.projects, { department: activeDept, title: "", type: "", status: "Drafting" }] }))} className="btn-secondary-sm">
+                        <Plus size={16} /> Add Project
+                      </button>
+                      <button onClick={handleSyncProjects} disabled={isSaving} className="btn-primary-sm">
+                        {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Sync Pipeline
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    {data.projects.filter((p: any) => p.department === activeDept).map((project: any, idx: number) => (
+                      <div key={idx} className="flex flex-col md:flex-row gap-4 p-4 border border-surrey-grey/20 rounded-xl bg-surrey-light/10">
+                        <input 
+                          type="text" 
+                          value={project.title} 
+                          onChange={(e) => setData((p:any) => ({ ...p, projects: p.projects.map((proj:any) => proj === project ? { ...proj, title: e.target.value } : proj) }))} 
+                          className="input flex-[3] font-bold" 
+                          placeholder="Project Title"
+                        />
+                        <input 
+                          type="text" 
+                          value={project.type} 
+                          onChange={(e) => setData((p:any) => ({ ...p, projects: p.projects.map((proj:any) => proj === project ? { ...proj, type: e.target.value } : proj) }))} 
+                          className="input flex-[2]" 
+                          placeholder="Type (e.g. Deep Dive)"
+                        />
+                        <select 
+                          value={project.status} 
+                          onChange={(e) => setData((p:any) => ({ ...p, projects: p.projects.map((proj:any) => proj === project ? { ...proj, status: e.target.value } : proj) }))} 
+                          className="input flex-[1.5]"
+                        >
+                          <option value="Drafting">Drafting</option>
+                          <option value="In Review">In Review</option>
+                          <option value="Publishing Soon">Publishing Soon</option>
+                        </select>
+                        <button onClick={() => setData((p:any) => ({ ...p, projects: p.projects.filter((proj:any) => proj !== project) }))} className="text-red-500 hover:text-red-700 p-2"><Trash2 size={20} /></button>
+                      </div>
+                    ))}
+                    {data.projects.filter((p: any) => p.department === activeDept).length === 0 && (
+                      <div className="text-center py-8 text-text-muted">No active projects found for this desk.</div>
+                    )}
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ─── CONTACT TAB ─── */}
+        {activeTab === "contact" && (
+           <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm grow min-h-[400px]">
+           <div className="flex justify-between items-center mb-6">
+             <h2 className="text-xl font-bold text-surrey-blue flex items-center gap-2">
+               <Mail className="text-surrey-gold" size={20} /> Contact Page Hero
+             </h2>
+             <button onClick={handlePrimarySave} disabled={isSaving} className="btn-primary-sm">
+               {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Save Changes
+             </button>
+           </div>
+           <div className="space-y-6">
+             <div className="space-y-2">
+               <label className="label">Contact Hero Title</label>
+               <input type="text" name="contactHeroTitle" value={data.contactHeroTitle} onChange={handleChange} className="input text-lg font-bold" />
+             </div>
+             <div className="space-y-2">
+               <label className="label">Contact Hero Description</label>
+               <textarea rows={4} name="contactHeroDescription" value={data.contactHeroDescription} onChange={handleChange} className="input h-auto resize-none" />
+             </div>
+             <div className="p-4 bg-surrey-beige/50 rounded-xl border border-surrey-gold/20 text-sm text-surrey-blue/70">
+               <span className="font-bold">Note:</span> Specific department emails and office address are managed in the <button onClick={() => setActiveTab('global')} className="text-surrey-gold font-bold hover:underline">Global & SEO</button> tab.
+             </div>
+           </div>
+         </section>
+        )}
+
+      </div>
+
+      <style jsx global>{`
+        .input {
+          width: 100%;
+          background: #f8fafc;
+          border: 1px solid rgba(148, 163, 184, 0.4);
+          color: #1e293b;
+          border-radius: 0.75rem;
+          padding: 0.625rem 1rem;
+          outline: none;
+          transition: all 0.2s;
+        }
+        .input:focus {
+          border-color: #ac9741;
+          box-shadow: 0 0 0 4px rgba(172, 151, 65, 0.1);
+          background: white;
+        }
+        .label {
+          display: block;
+          font-size: 0.875rem;
+          font-weight: 700;
+          color: #1e293b;
+        }
+        .btn-primary-sm {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: #1e293b;
+          color: white;
+          padding: 0.5rem 1.25rem;
+          border-radius: 0.625rem;
+          font-weight: 700;
+          font-size: 0.875rem;
+          transition: all 0.2s;
+        }
+        .btn-primary-sm:hover:not(:disabled) {
+          background: #2d3748;
+          transform: translateY(-1px);
+        }
+        .btn-primary-sm:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        .btn-secondary-sm {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: #f1f5f9;
+          color: #1e293b;
+          padding: 0.5rem 1.25rem;
+          border-radius: 0.625rem;
+          font-weight: 700;
+          font-size: 0.875rem;
+          border: 1px solid #e2e8f0;
+          transition: all 0.2s;
+        }
+        .btn-secondary-sm:hover {
+          background: #e2e8f0;
+        }
+        .toggle {
+          position: relative;
+          display: inline-flex;
+          height: 1.75rem;
+          width: 3.5rem;
+          flex-shrink: 0;
+          cursor: pointer;
+          border-radius: 9999px;
+          border: 2px solid transparent;
+          transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+        }
+        .toggle-dot {
+          pointer-events: none;
+          display: inline-block;
+          height: 1.5rem;
+          width: 1.5rem;
+          transform: translateX(0);
+          border-radius: 9999px;
+          background: white;
+          box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+          transition: transform 0.2s ease-in-out;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </main>
   );
 }

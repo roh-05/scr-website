@@ -6,7 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 
-export default function Navbar() {
+export default function Navbar({ settings }: { settings?: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
@@ -38,11 +38,10 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20">
 
-          {/* Logo / Brand Name */}
           <div className="flex items-center h-full">
             <Link href="/" className="flex-shrink-0 flex items-center gap-3 group focus:outline-none">
               <Image
-                src="/scr-logo.jpg"
+                src={settings?.logoUrl || "/scr-logo.jpg"}
                 alt="Surrey Capital Research Logo"
                 width={50}
                 height={50}
@@ -51,10 +50,10 @@ export default function Navbar() {
               />
               <div className="flex flex-col">
                 <span className="font-bold text-xl tracking-tight text-white group-hover:text-surrey-gold transition-colors">
-                  Surrey Capital Research
+                  {settings?.siteName || "Surrey Capital Research"}
                 </span>
                 <span className="text-[10px] text-surrey-gold font-medium tracking-widest uppercase mt-0.5">
-                  University of Surrey
+                  {settings?.siteTagline || "University of Surrey"}
                 </span>
               </div>
             </Link>

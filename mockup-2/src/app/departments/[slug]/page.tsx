@@ -63,9 +63,9 @@ const DEPARTMENT_INFO: Record<string, any> = {
 export default async function DepartmentPage(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;
   const slug = params.slug;
-  const deptData = DEPARTMENT_INFO[slug];
+  const staticDept = DEPARTMENT_INFO[slug];
 
-  if (!deptData) {
+  if (!staticDept) {
     notFound();
   }
 
@@ -82,8 +82,8 @@ export default async function DepartmentPage(props: { params: Promise<{ slug: st
 
   const dbDepartment = mapSlugToEnum(slug);
 
-  // Fetch LIVE Team Members & Published Reports simultaneously!
-  const [teamMembers, publishedReports] = await Promise.all([
+  // Fetch everything simultaneously!
+  const [teamMembers, publishedReports, metadata, projects] = await Promise.all([
     prisma.teamMember.findMany({
       where: { department: dbDepartment, status: 'ACTIVE' },
       orderBy: [
@@ -94,8 +94,20 @@ export default async function DepartmentPage(props: { params: Promise<{ slug: st
     prisma.report.findMany({
       where: { department: dbDepartment, status: 'PUBLISHED' },
       orderBy: { createdAt: "desc" }
-    })
+    }),
+    // @ts-ignore
+    prisma.departmentMetadata.findUnique({ where: { department: dbDepartment } }),
+    // @ts-ignore
+    prisma.project.findMany({ where: { department: dbDepartment }, orderBy: { order: 'asc' } })
   ]);
+
+  // Use DB metadata if available, fall back to static mockup data
+  const deptData = {
+    ...staticDept,
+    focus: (metadata as any)?.focus || staticDept.focus,
+    overview: (metadata as any)?.overview || staticDept.overview,
+    projects: projects.length > 0 ? projects : staticDept.projects
+  };
 
   const deptStyle = DEPT_COLORS[deptData.name] || { bg: '#bfc5ca', text: '#fff' };
   const Icon = deptData.icon;
