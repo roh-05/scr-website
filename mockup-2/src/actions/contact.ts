@@ -6,6 +6,18 @@ import prisma from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { ActionResponse } from "@/lib/types";
 
+import nodemailer from 'nodemailer';
+
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: parseInt(process.env.SMTP_PORT || '587'),
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
+
 export async function submitContactForm(formData: FormData): Promise<ActionResponse> {
   const name = formData.get("name");
   const email = formData.get("email");
@@ -40,6 +52,22 @@ export async function submitContactForm(formData: FormData): Promise<ActionRespo
     // to actually email this data to contact@surreycapital.org
     
     console.log("New Contact Form Submission saved to Database:", { name, email, subject, message });
+
+    try {
+      await transporter.sendMail({
+        from: process.env.FROM_EMAIL,
+        to: email.toString(),
+        subject: 'Thank you for contacting Surrey Capital Research',
+        html: `
+          <p>Dear ${name},</p>
+          <p>Thank you for your message. We have received your inquiry and will respond within 2-3 business days.</p>
+          <p>Best regards,<br>Surrey Capital Research Team</p>
+        `,
+      });
+    } catch (emailError) {
+      console.error('[EMAIL SEND ERROR]:', emailError);
+      // Don't fail the submission; log and continue
+    }
 
     return { success: true };
   } catch (error) {
