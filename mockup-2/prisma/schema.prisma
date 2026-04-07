@@ -57,6 +57,7 @@ model Report {
   authorNames    String
   status         ReportStatus   @default(DRAFT)
   fileUrl        String         // Link to the PDF storage
+  coverUrl       String?        // Link to the generated cover image
   fileSizeBytes  Int?
   publishedAt    DateTime?
   excerpt        String?        @db.Text
@@ -78,7 +79,18 @@ model SiteSettings {
   mnaEmail              String   @default("mna@surreycapital.org")
   quantEmail            String   @default("quant@surreycapital.org")
   economicsEmail        String   @default("economics@surreycapital.org")
+  analyticsId           String?
   updatedAt             DateTime @updatedAt
+
+  // ─── BRANDING & COLORS ───
+  primaryColor          String   @default("#354a61")
+  accentColor           String   @default("#ac9741")
+  backgroundColor       String   @default("#fafbf8")
+  secondaryBgColor      String   @default("#e9e4d4")
+  mutedColor            String   @default("#7b8797")
+  borderColor           String   @default("#bfc5ca")
+  headingFont           String   @default("EB Garamond")
+  bodyFont              String   @default("Merriweather")
 
   // ─── HOMEPAGE CONTENT ───
   heroTitle          String   @default("Student-Led Financial Excellence")
@@ -138,6 +150,9 @@ model ResearchArea {
 model DepartmentMetadata {
   id          String         @id @default(uuid())
   department  DepartmentType @unique
+  name        String?        // Hero title override
+  description String?        @db.Text // Hero teaser override
+  iconName    String?        // Lucide icon name override
   focus       String
   overview    String         @db.Text
   summary     String?        @db.Text

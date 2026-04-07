@@ -53,6 +53,16 @@ const settingsSchema = z.object({
   // Global / Footer
   logoUrl: z.string().optional().nullable(),
   footerCopyright: z.string().optional(),
+
+  // Branding & Colors
+  primaryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  accentColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  backgroundColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  secondaryBgColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  mutedColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  borderColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  headingFont: z.string().optional(),
+  bodyFont: z.string().optional(),
 });
 
 import { SiteSettings, Faq, ResearchArea, DepartmentMetadata, Project } from "@prisma/client";
@@ -83,6 +93,14 @@ export async function getSiteSettings(): Promise<ActionResponse<SiteSettingsWith
         mnaEmail: "mna@surreycapital.org",
         quantEmail: "quant@surreycapital.org",
         economicsEmail: "economics@surreycapital.org",
+        primaryColor: "#3D5A80",
+        accentColor: "#B8963E",
+        backgroundColor: "#FFFFFF",
+        secondaryBgColor: "#F7F8FA",
+        mutedColor: "#6B7F94",
+        borderColor: "#EBF0F5",
+        headingFont: "EB Garamond",
+        bodyFont: "Merriweather",
       },
     });
 

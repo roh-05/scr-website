@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getReports, clearAllCoverImagesStorage, updateReportCoverUrl } from "@/actions/reports";
+import { extractCoverImage } from "@/lib/supabase";
+import { createBrowserClient } from '@supabase/ssr';
 import { 
   getSiteSettings, 
   updateSiteSettings, 
@@ -29,13 +32,15 @@ import {
   ChevronUp,
   Image as ImageIcon,
   ExternalLink,
-  MessageSquare
+  MessageSquare,
+  Palette
 } from "lucide-react";
 import { DepartmentType } from "@prisma/client";
 
 const TABS = [
   { id: "global", label: "Global & SEO", icon: Globe },
   { id: "homepage", label: "Homepage", icon: Home },
+  { id: "branding", label: "Branding", icon: Palette },
   { id: "about", label: "About Page", icon: Info },
   { id: "departments", label: "Departments", icon: Layout },
   { id: "contact", label: "Contact Hero", icon: Mail },
@@ -53,6 +58,8 @@ export default function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCaching, setIsCaching] = useState(false);
+  const [cacheProgress, setCacheProgress] = useState("");
   
   // State to hold all CMS data
   const [data, setData] = useState<any>({
@@ -92,6 +99,14 @@ export default function SettingsPage() {
     contactHeroDescription: "",
     logoUrl: "",
     footerCopyright: "",
+    primaryColor: "#3D5A80",
+    accentColor: "#B8963E",
+    backgroundColor: "#FFFFFF",
+    secondaryBgColor: "#F7F8FA",
+    mutedColor: "#6B7F94",
+    borderColor: "#EBF0F5",
+    headingFont: "EB Garamond",
+    bodyFont: "Merriweather",
 
     // Arrays
     faqs: [],
@@ -113,6 +128,71 @@ export default function SettingsPage() {
     }
     loadSettings();
   }, []);
+
+  const handleRebuildCache = async () => {
+    if (!confirm("This will delete all existing cover images and regenerate them from their PDFs. This may take a few minutes. Continue?")) return;
+    
+    setIsCaching(true);
+    try {
+      setCacheProgress("Clearing existing cache...");
+      const clearResult = await clearAllCoverImagesStorage();
+      if (!clearResult.success) {
+        throw new Error(clearResult.error);
+      }
+
+      setCacheProgress("Fetching reports list...");
+      const reportsResult = await getReports();
+      if (!reportsResult.success) {
+        throw new Error(reportsResult.error || "Failed to fetch reports");
+      }
+      if (!reportsResult.data) {
+        throw new Error("Failed to fetch reports: no data returned");
+      }
+
+      const reports = reportsResult.data as any[];
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+
+      for (let i = 0; i < reports.length; i++) {
+        const report = reports[i];
+        setCacheProgress(`Processing report ${i + 1} of ${reports.length}: ${report.title}`);
+        
+        if (!report.fileUrl) continue;
+        
+        try {
+          const response = await fetch(report.fileUrl + "?t=" + Date.now());
+          if (!response.ok) continue;
+          
+          const blob = await response.blob();
+          const file = new File([blob], "temp.pdf", { type: "application/pdf" });
+          
+          const coverBlob = await extractCoverImage(file);
+          if (coverBlob) {
+            const baseName = Math.random().toString(36).substring(2, 15) + '_' + Date.now();
+            const coverPath = `covers/${baseName}.png`;
+            
+            const { error: coverError } = await supabase.storage.from('reports').upload(coverPath, coverBlob);
+            if (!coverError) {
+              const { data: coverData } = supabase.storage.from('reports').getPublicUrl(coverPath);
+              await updateReportCoverUrl(report.id, coverData.publicUrl);
+            }
+          }
+        } catch (err) {
+          console.error("Error processing report:", report.id, err);
+        }
+      }
+
+      setCacheProgress("");
+      alert("Cover image cache rebuilt successfully!");
+    } catch (err: any) {
+      alert("Error rebuilding cache: " + err.message);
+      setCacheProgress("");
+    } finally {
+      setIsCaching(false);
+    }
+  };
 
   const handlePrimarySave = async () => {
     setIsSaving(true);
@@ -177,7 +257,7 @@ export default function SettingsPage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setData((prev: any) => ({ ...prev, [name]: value }));
   };
@@ -337,6 +417,27 @@ export default function SettingsPage() {
                   <span className={`toggle-dot ${data.maintenanceMode ? 'translate-x-7' : 'translate-x-0'}`} />
                 </button>
               </div>
+
+              <div className="flex items-center justify-between bg-white p-5 rounded-xl border border-red-100 mt-4">
+                <div>
+                  <h3 className="font-bold text-surrey-blue">Rebuild Report Covers Cache</h3>
+                  <p className="text-sm text-text-muted mt-1">
+                     {isCaching ? (
+                         <span className="text-surrey-gold font-bold flex items-center gap-2"><Loader2 size={14} className="animate-spin" /> {cacheProgress}</span>
+                     ) : (
+                         "Deletes all stored cover images and completely regenerates them from PDFs."
+                     )}
+                  </p>
+                </div>
+                <button 
+                  type="button"
+                  onClick={handleRebuildCache}
+                  disabled={isCaching}
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-red-700 transition-colors disabled:opacity-50"
+                >
+                  {isCaching ? "Rebuilding..." : "Rebuild Cache"}
+                </button>
+              </div>
             </section>
           </div>
         )}
@@ -400,6 +501,142 @@ export default function SettingsPage() {
                   <input type="text" name="ctaSubtext" value={data.ctaSubtext} onChange={handleChange} className="input" />
                 </div>
               </div>
+            </section>
+          </div>
+        )}
+
+        {/* ─── BRANDING TAB ─── */}
+        {activeTab === "branding" && (
+          <div className="space-y-8">
+            <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-surrey-blue flex items-center gap-2">
+                  <Palette className="text-surrey-gold" size={20} /> Brand Palette
+                </h2>
+                <button onClick={handlePrimarySave} disabled={isSaving} className="btn-primary-sm">
+                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Save Colors
+                </button>
+              </div>
+              
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="space-y-3">
+                  <label className="label">Primary Color (Blue)</label>
+                  <div className="flex gap-3">
+                    <input type="color" name="primaryColor" value={data.primaryColor} onChange={handleChange} className="h-11 w-11 rounded-lg border border-surrey-grey/30 p-1 cursor-pointer" />
+                    <input type="text" name="primaryColor" value={data.primaryColor} onChange={handleChange} className="input font-mono text-sm uppercase" />
+                  </div>
+                  <p className="text-[10px] text-text-muted italic">Used for headers, text, and primary actions.</p>
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="label">Accent Color (Gold)</label>
+                  <div className="flex gap-3">
+                    <input type="color" name="accentColor" value={data.accentColor} onChange={handleChange} className="h-11 w-11 rounded-lg border border-surrey-grey/30 p-1 cursor-pointer" />
+                    <input type="text" name="accentColor" value={data.accentColor} onChange={handleChange} className="input font-mono text-sm uppercase" />
+                  </div>
+                  <p className="text-[10px] text-text-muted italic">Used for highlights, icons, and small buttons.</p>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="label">Main Background</label>
+                  <div className="flex gap-3">
+                    <input type="color" name="backgroundColor" value={data.backgroundColor} onChange={handleChange} className="h-11 w-11 rounded-lg border border-surrey-grey/30 p-1 cursor-pointer" />
+                    <input type="text" name="backgroundColor" value={data.backgroundColor} onChange={handleChange} className="input font-mono text-sm uppercase" />
+                  </div>
+                  <p className="text-[10px] text-text-muted italic">The default background color for all pages.</p>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="label">Secondary Background</label>
+                  <div className="flex gap-3">
+                    <input type="color" name="secondaryBgColor" value={data.secondaryBgColor} onChange={handleChange} className="h-11 w-11 rounded-lg border border-surrey-grey/30 p-1 cursor-pointer" />
+                    <input type="text" name="secondaryBgColor" value={data.secondaryBgColor} onChange={handleChange} className="input font-mono text-sm uppercase" />
+                  </div>
+                  <p className="text-[10px] text-text-muted italic">Used for sections, cards, and alternating content.</p>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="label">Muted / Metadata Text</label>
+                  <div className="flex gap-3">
+                    <input type="color" name="mutedColor" value={data.mutedColor} onChange={handleChange} className="h-11 w-11 rounded-lg border border-surrey-grey/30 p-1 cursor-pointer" />
+                    <input type="text" name="mutedColor" value={data.mutedColor} onChange={handleChange} className="input font-mono text-sm uppercase" />
+                  </div>
+                  <p className="text-[10px] text-text-muted italic">Used for subheaders and less prominent text.</p>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="label">Border & Divider Color</label>
+                  <div className="flex gap-3">
+                    <input type="color" name="borderColor" value={data.borderColor} onChange={handleChange} className="h-11 w-11 rounded-lg border border-surrey-grey/30 p-1 cursor-pointer" />
+                    <input type="text" name="borderColor" value={data.borderColor} onChange={handleChange} className="input font-mono text-sm uppercase" />
+                  </div>
+                  <p className="text-[10px] text-text-muted italic">Used for borders, lines, and table separators.</p>
+                </div>
+              </div>
+            </section>
+
+            <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm">
+              <h2 className="text-xl font-bold text-surrey-blue mb-6">Typography</h2>
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-3">
+                  <label className="label">Heading Font</label>
+                  <select name="headingFont" value={data.headingFont} onChange={handleChange} className="input">
+                    <option value="EB Garamond">EB Garamond</option>
+                    <option value="Playfair Display">Playfair Display</option>
+                    <option value="Merriweather">Merriweather</option>
+                    <option value="Roboto Slab">Roboto Slab</option>
+                    <option value="Lora">Lora</option>
+                    <option value="Inter">Inter</option>
+                  </select>
+                  <p className="text-[10px] text-text-muted italic">Used for all page titles, section headers, and bold highlights.</p>
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="label">Body Font</label>
+                  <select name="bodyFont" value={data.bodyFont} onChange={handleChange} className="input">
+                    <option value="Merriweather">Merriweather</option>
+                    <option value="Inter">Inter</option>
+                    <option value="Roboto">Roboto</option>
+                    <option value="Open Sans">Open Sans</option>
+                    <option value="Lora">Lora</option>
+                  </select>
+                  <p className="text-[10px] text-text-muted italic">Used for standard paragraphs, metadata, and structural UI elements.</p>
+                </div>
+              </div>
+            </section>
+
+            <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm overflow-hidden">
+                <h2 className="text-lg font-bold text-surrey-blue mb-6">Live Branding Preview</h2>
+                {data.headingFont && data.bodyFont && (
+                  <link href={`https://fonts.googleapis.com/css2?family=${data.headingFont.replace(/ /g, '+')}:wght@400;700&family=${data.bodyFont.replace(/ /g, '+')}:wght@400;700&display=swap`} rel="stylesheet" />
+                )}
+                <div 
+                    className="p-10 rounded-xl border border-surrey-grey/20 space-y-6"
+                    style={{ backgroundColor: data.backgroundColor, fontFamily: `'${data.bodyFont}', sans-serif` }}
+                >
+                    <div className="flex gap-2">
+                        <div className="w-10 h-10 rounded-full shrink-0" style={{ backgroundColor: data.primaryColor }} />
+                        <div className="flex-1 space-y-2">
+                             <h3 className="text-xl font-bold" style={{ color: data.primaryColor, fontFamily: `'${data.headingFont}', serif` }}>Dynamic Branding Example</h3>
+                             <p className="text-sm" style={{ color: data.mutedColor }}>This is how your chosen colors will look together in various UI components.</p>
+                        </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                        <div className="p-6 rounded-xl border" style={{ backgroundColor: data.secondaryBgColor, borderColor: data.borderColor }}>
+                            <h4 className="font-bold mb-2" style={{ color: data.primaryColor, fontFamily: `'${data.headingFont}', serif` }}>Secondary Card</h4>
+                            <p className="text-xs" style={{ color: data.mutedColor }}>This section uses your secondary background and border colors.</p>
+                        </div>
+                         <div className="p-6 rounded-xl border flex flex-col items-center justify-center gap-4" style={{ backgroundColor: 'white', borderColor: data.borderColor }}>
+                            <button className="px-6 py-2 rounded-lg text-white font-bold text-sm shadow-sm transition-opacity hover:opacity-90" style={{ backgroundColor: data.primaryColor, fontFamily: `'${data.bodyFont}', sans-serif` }}>
+                                Primary Action
+                            </button>
+                            <span className="text-xs font-bold uppercase tracking-widest" style={{ color: data.accentColor, fontFamily: `'${data.bodyFont}', sans-serif` }}>
+                                Accent Highlight
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </section>
           </div>
         )}
@@ -614,6 +851,40 @@ export default function SettingsPage() {
                   </div>
                   
                   <div className="space-y-6">
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="label">Display Name (Hero Title)</label>
+                        <input 
+                          type="text" 
+                          value={data.deptMetadata.find((m:any) => m.department === activeDept)?.name || ""} 
+                          onChange={(e) => handleDeptMetaChange("name", e.target.value)} 
+                          className="input" 
+                          placeholder="e.g., Equity Research"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="label">Lucide Icon Name</label>
+                        <input 
+                          type="text" 
+                          value={data.deptMetadata.find((m:any) => m.department === activeDept)?.iconName || ""} 
+                          onChange={(e) => handleDeptMetaChange("iconName", e.target.value)} 
+                          className="input" 
+                          placeholder="e.g., TrendingUp, Briefcase"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="label">Hero Teaser (Short Description)</label>
+                      <textarea 
+                        rows={2} 
+                        value={data.deptMetadata.find((m:any) => m.department === activeDept)?.description || ""} 
+                        onChange={(e) => handleDeptMetaChange("description", e.target.value)} 
+                        className="input h-auto resize-none" 
+                        placeholder="A one-sentence teaser for the hero section..."
+                      />
+                    </div>
+
                     <div className="space-y-2">
                       <label className="label">Core Focus (Short String)</label>
                       <input 
@@ -625,7 +896,7 @@ export default function SettingsPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="label">Desk Overview / Mandatory Text</label>
+                      <label className="label">Desk Overview / Mandatory Text (Detailed)</label>
                       <textarea 
                         rows={6} 
                         value={data.deptMetadata.find((m:any) => m.department === activeDept)?.overview || ""} 

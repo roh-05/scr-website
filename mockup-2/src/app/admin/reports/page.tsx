@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getReports, createReport, deleteReport } from "@/actions/reports";
-import { uploadReportToStorage } from "@/lib/supabase";
+import { uploadReportWithCover } from "@/lib/supabase";
 import { DepartmentType, ReportStatus } from "@prisma/client";
 import { 
   FileText, PlusCircle, Search, Filter, Edit, Trash2, Eye, UploadCloud, Loader2
@@ -54,18 +54,20 @@ export default function ReportsManagementPage() {
     setIsSubmitting(true);
 
     try {
-      // Step A: Upload file to Supabase Storage
-      const publicUrl = await uploadReportToStorage(selectedFile);
-      if (!publicUrl) throw new Error("Failed to upload file to storage.");
+      // Step A: Upload file and generate cover
+      const uploadResult = await uploadReportWithCover(selectedFile);
+      if (!uploadResult) throw new Error("Failed to upload file or generate cover.");
+      const { fileUrl, coverUrl } = uploadResult;
 
-      // Step B: Save metadata and URL to Prisma Database
+      // Step B: Save metadata and URLs to Prisma Database
       const result = await createReport({
         title: formData.title,
         department: formData.department,
         authorNames: formData.authorNames,
         excerpt: formData.excerpt,
         tags: formData.tags,
-        fileUrl: publicUrl,
+        fileUrl: fileUrl,
+        coverUrl: coverUrl,
         fileSizeBytes: selectedFile.size,
         status: ReportStatus.PUBLISHED, // Auto-publishing for this example
       });

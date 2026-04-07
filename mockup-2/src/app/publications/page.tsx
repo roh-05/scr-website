@@ -25,6 +25,9 @@ export default async function PublicationsPage() {
     department: formatDept(r.department),
     authorNames: r.authorNames,
     fileUrl: r.fileUrl,
+    coverUrl: r.coverUrl,
+    excerpt: r.excerpt,
+    tags: r.tags,
     // Convert the Date object to an ISO string to pass it safely to the client
     date: r.publishedAt ? r.publishedAt.toISOString() : r.createdAt.toISOString(),
   }));

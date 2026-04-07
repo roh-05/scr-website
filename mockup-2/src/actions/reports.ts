@@ -13,6 +13,7 @@ const reportSchema = z.object({
   department: z.nativeEnum(DepartmentType),
   authorNames: z.string().min(1, "Author names are required"),
   fileUrl: z.string().url("Invalid file URL"),
+  coverUrl: z.string().url("Invalid cover URL").optional(),
   fileSizeBytes: z.number().int().positive().optional(),
   status: z.nativeEnum(ReportStatus).optional(),
   excerpt: z.string().optional(),
@@ -70,6 +71,7 @@ export async function createReport(data: any): Promise<ActionResponse<unknown>> 
         department: validData.department,
         authorNames: validData.authorNames,
         fileUrl: validData.fileUrl,
+        coverUrl: validData.coverUrl,
         fileSizeBytes: validData.fileSizeBytes,
         status: validData.status || ReportStatus.DRAFT,
         // If it's published immediately, set the publishedAt date
@@ -138,5 +140,73 @@ export async function deleteReport(id: string): Promise<ActionResponse> {
   } catch (error) {
     console.error("[REPORT DELETE ERROR]:", error);
     return { success: false, error: "Failed to dynamically delete report." };
+  }
+}
+
+// --- 5. REPORT CACHE MANAGEMENT ---
+export async function updateReportCoverUrl(id: string, coverUrl: string | null): Promise<ActionResponse> {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { success: false, error: "Unauthorized: You must be logged in to perform this action." };
+    }
+
+    await prisma.report.update({
+      where: { id },
+      data: { coverUrl },
+    });
+
+    revalidatePath("/admin/reports");
+    revalidatePath("/publications");
+    return { success: true };
+  } catch (error) {
+    console.error("[REPORT UPDATE ERROR]:", error);
+    return { success: false, error: "Failed to update cover url." };
+  }
+}
+
+export async function clearAllCoverImagesStorage(): Promise<ActionResponse> {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { success: false, error: "Unauthorized: You must be logged in to perform this action." };
+    }
+
+    // List all files in the "covers" folder of the "reports" bucket
+    const { data: files, error: listError } = await supabase.storage.from('reports').list('covers');
+    if (listError) return { success: false, error: "Failed to list cover images." };
+
+    if (files && files.length > 0) {
+      // Supabase list can return an empty entry or directories, but usually just files.
+      // Filter out standard placeholder `.emptyFolderPlaceholder` if any
+      const filesToRemove = files
+        .filter(x => x.name !== '.emptyFolderPlaceholder')
+        .map(x => `covers/${x.name}`);
+        
+      if (filesToRemove.length > 0) {
+          const { error: removeError } = await supabase.storage.from('reports').remove(filesToRemove);
+          if (removeError) {
+              console.error("[STORAGE REMOVE ERROR]", removeError);
+              return { success: false, error: "Failed to delete cover images from storage." };
+          }
+      }
+    }
+
+    // Now remove coverUrl from all reports in db locally
+    await prisma.report.updateMany({
+      data: { coverUrl: null },
+    });
+    
+    revalidatePath("/admin/reports");
+    revalidatePath("/publications");
+
+    return { success: true };
+  } catch (error) {
+    console.error("[REPORT CACHE CLEAR ERROR]:", error);
+    return { success: false, error: "Failed to clear cover images." };
   }
 }

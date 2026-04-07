@@ -104,13 +104,20 @@ export default async function DepartmentPage(props: { params: Promise<{ slug: st
   // Use DB metadata if available, fall back to static mockup data
   const deptData = {
     ...staticDept,
+    name: (metadata as any)?.name || staticDept.name,
+    description: (metadata as any)?.description || staticDept.description,
     focus: (metadata as any)?.focus || staticDept.focus,
     overview: (metadata as any)?.overview || staticDept.overview,
     projects: projects.length > 0 ? projects : staticDept.projects
   };
 
-  const deptStyle = DEPT_COLORS[deptData.name] || { bg: '#bfc5ca', text: '#fff' };
-  const Icon = deptData.icon;
+  const deptStyle = DEPT_COLORS[deptData.name] || DEPT_COLORS[staticDept.name] || { bg: '#bfc5ca', text: '#fff' };
+  
+  // Dynamic Icon Selection
+  const iconName = (metadata as any)?.iconName;
+  const Icons = await import('lucide-react');
+  // @ts-ignore
+  const Icon = Icons[iconName] || staticDept.icon || Icons.FileText;
 
   return (
     <div className="min-h-screen bg-surrey-light flex flex-col">
