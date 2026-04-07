@@ -45,3 +45,4 @@ next-env.d.ts
 # AI/Agent generated artifacts
 artifacts/
 temp.md
+CLAUDE.md

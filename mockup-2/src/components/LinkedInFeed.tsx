@@ -1,9 +1,11 @@
-import Link from "next/link";
-import updates from "@/data/updates.json";
+import { getLinkedInPosts } from "@/actions/linkedin";
 
-export default function LinkedInFeed() {
+export default async function LinkedInFeed() {
+  const result = await getLinkedInPosts();
+  const posts = (result.success && result.data ? result.data : []) as any[];
+
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col h-full max-h-full overflow-hidden">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col overflow-hidden" style={{ height: '620px' }}>
 
       {/* Header */}
       <div className="bg-[#fafbf8] border-b border-gray-200 p-5 flex items-center justify-between shrink-0">
@@ -24,29 +26,25 @@ export default function LinkedInFeed() {
       </div>
 
       {/* Scrollable Feed Area */}
-      {/* Adding overflow-y-auto and min-h-0 ensures it scrolls instead of stretching the box */}
-      <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-6">
-        {updates.map((post) => (
-          <div key={post.id} className="border-b border-gray-100 last:border-0 pb-6 last:pb-0">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-                {post.category}
-              </span>
-              <span className="text-xs text-gray-400">{post.date}</span>
-            </div>
-            <p className="text-sm text-surrey-blue leading-relaxed mb-3">
-              {post.text}
-            </p>
-            <a
-              href={post.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-semibold text-surrey-gold hover:text-[#8a7934] transition-colors"
-            >
-              View on LinkedIn &rarr;
-            </a>
-          </div>
-        ))}
+      <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4">
+        {posts.length === 0 ? (
+          <p className="text-sm text-text-muted italic text-center py-8">
+            No posts yet — add some from the admin panel.
+          </p>
+        ) : (
+          posts.map((post) => (
+            <iframe
+              key={post.id}
+              src={post.embedUrl}
+              height="480"
+              width="100%"
+              frameBorder="0"
+              allowFullScreen
+              title="LinkedIn post"
+              className="rounded-lg"
+            />
+          ))
+        )}
       </div>
 
     </div>

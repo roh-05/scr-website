@@ -179,3 +179,10 @@ model ContactSubmission {
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 }
+
+model LinkedInPost {
+  id        String   @id @default(uuid())
+  embedUrl  String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}

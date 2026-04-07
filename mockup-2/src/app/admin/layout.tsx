@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Users, 
-  Settings, 
+import {
+  LayoutDashboard,
+  FileText,
+  Users,
+  Settings,
   LogOut,
   TrendingUp,
-  Inbox
+  Inbox,
+  Rss
 } from "lucide-react";
 import { logout } from "@/actions/auth";
 
@@ -85,15 +86,26 @@ export default function AdminLayout({
             <Settings size={18} /> Website editing
           </Link>
           
-          <Link 
-            href="/admin/enquiries" 
+          <Link
+            href="/admin/enquiries"
             className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-              isActive("/admin/enquiries") 
-                ? "bg-surrey-gold/20 text-surrey-gold font-bold" 
+              isActive("/admin/enquiries")
+                ? "bg-surrey-gold/20 text-surrey-gold font-bold"
                 : "text-white/70 hover:bg-white/5 hover:text-white font-medium"
             }`}
           >
             <Inbox size={18} /> Enquiries
+          </Link>
+
+          <Link
+            href="/admin/linkedin"
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+              isActive("/admin/linkedin")
+                ? "bg-surrey-gold/20 text-surrey-gold font-bold"
+                : "text-white/70 hover:bg-white/5 hover:text-white font-medium"
+            }`}
+          >
+            <Rss size={18} /> LinkedIn Feed
           </Link>
         </nav>
 

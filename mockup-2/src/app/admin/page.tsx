@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { 
-  FileText, 
-  Users, 
-  PlusCircle, 
+import {
+  FileText,
+  Users,
+  PlusCircle,
   FileEdit,
   Loader2,
-  Clock
+  Clock,
+  Rss
 } from "lucide-react";
 import { getRecentActivity, RecentActivityItem } from "@/actions/dashboard";
 
@@ -44,7 +45,7 @@ export default function AdminDashboard() {
 
       {/* Quick Actions for Non-Technical Users */}
       <h2 className="text-sm font-bold text-surrey-blue uppercase tracking-wider mb-4">Quick Actions</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         
         <Link href="/admin/reports" className="bg-white p-6 rounded-2xl border border-surrey-grey/40 shadow-sm hover:shadow-md transition-shadow group block">
           <div className="w-12 h-12 bg-surrey-blue/5 rounded-xl flex items-center justify-center mb-4 group-hover:bg-surrey-blue transition-colors">
@@ -68,6 +69,14 @@ export default function AdminDashboard() {
           </div>
           <h3 className="font-bold text-surrey-blue text-lg mb-1">Edit Website Copy</h3>
           <p className="text-text-muted text-sm border-t border-transparent leading-relaxed">Change text, mission statements, and external links.</p>
+        </Link>
+
+        <Link href="/admin/linkedin" className="bg-white p-6 rounded-2xl border border-surrey-grey/40 shadow-sm hover:shadow-md transition-shadow group block">
+          <div className="w-12 h-12 bg-[#0A66C2]/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-[#0A66C2] transition-colors">
+            <Rss size={24} className="text-[#0A66C2] group-hover:text-white transition-colors" />
+          </div>
+          <h3 className="font-bold text-surrey-blue text-lg mb-1">LinkedIn Feed</h3>
+          <p className="text-text-muted text-sm border-t border-transparent leading-relaxed">Add or remove posts shown in the homepage feed.</p>
         </Link>
 
       </div>
