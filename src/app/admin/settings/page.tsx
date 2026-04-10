@@ -195,10 +195,10 @@ export default function SettingsPage() {
     }
   };
 
-  const handlePrimarySave = async () => {
+  const handlePrimarySave = async (overrideData?: any) => {
     setIsSaving(true);
     setSaveSuccess(false);
-    const result = await updateSiteSettings(data);
+    const result = await updateSiteSettings(overrideData || data);
     setIsSaving(false);
     if (result.success) {
       setSaveSuccess(true);
@@ -415,7 +415,12 @@ export default function SettingsPage() {
                 </div>
                 <button 
                   type="button"
-                  onClick={() => handlePrimarySave()}
+                  onClick={() => {
+                    const newValue = !data.maintenanceMode;
+                    setData((prev: any) => ({ ...prev, maintenanceMode: newValue }));
+                    // Trigger save with the new value immediately
+                    setTimeout(() => handlePrimarySave({ ...data, maintenanceMode: newValue }), 100);
+                  }}
                   className={`toggle ${data.maintenanceMode ? 'bg-red-600' : 'bg-surrey-grey'}`}
                 >
                   <span className={`toggle-dot ${data.maintenanceMode ? 'translate-x-7' : 'translate-x-0'}`} />
