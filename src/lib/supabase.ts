@@ -1,8 +1,10 @@
 import { createBrowserClient } from '@supabase/ssr';
 import { pdfjs } from 'react-pdf';
 
-// Set worker path for PDF processing
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+// Set worker path for PDF processing only on the client
+if (typeof window !== 'undefined') {
+  pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+}
 
 // These environment variables are standard when you connect a Next.js app to Supabase.
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;

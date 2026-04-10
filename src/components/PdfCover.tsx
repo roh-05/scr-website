@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { FileText } from 'lucide-react';
 
-// Set worker path
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+// Set worker path only on the client
+if (typeof window !== 'undefined') {
+  pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+}
 
 export default function PdfCover({ pdfUrl, title }: { pdfUrl: string; title?: string }) {
   const [error, setError] = useState(false);
