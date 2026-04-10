@@ -1,10 +1,4 @@
 import { createBrowserClient } from '@supabase/ssr';
-import { pdfjs } from 'react-pdf';
-
-// Set worker path for PDF processing only on the client
-if (typeof window !== 'undefined') {
-  pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-}
 
 // These environment variables are standard when you connect a Next.js app to Supabase.
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -17,6 +11,12 @@ const getClient = () => createBrowserClient(supabaseUrl, supabaseKey);
  */
 export async function extractCoverImage(file: File): Promise<Blob | null> {
   try {
+    // Dynamic import to avoid server-side evaluation of PDF library
+    const { pdfjs } = await import('react-pdf');
+    if (typeof window !== 'undefined') {
+       pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+    }
+
     const arrayBuffer = await file.arrayBuffer();
     const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
     const pdf = await loadingTask.promise;

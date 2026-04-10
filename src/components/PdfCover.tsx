@@ -1,25 +1,37 @@
 "use client";
 
-import { useState } from 'react';
-import { Document, Page, pdfjs } from 'react-pdf';
+import { useState, useEffect } from 'react';
 import { FileText } from 'lucide-react';
 
-// Set worker path only on the client
-if (typeof window !== 'undefined') {
-  pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-}
-
 export default function PdfCover({ pdfUrl, title }: { pdfUrl: string; title?: string }) {
+  const [PDF, setPDF] = useState<{ Document: any; Page: any } | null>(null);
   const [error, setError] = useState(false);
 
-  if (error) {
+  useEffect(() => {
+    // Dynamically load react-pdf only on the client
+    import('react-pdf').then((mod) => {
+      const { pdfjs } = mod;
+      // Set worker path
+      pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+      setPDF({ Document: mod.Document, Page: mod.Page });
+    }).catch((err) => {
+      console.error("Failed to load PDF library:", err);
+      setError(true);
+    });
+  }, []);
+
+  if (error || !PDF) {
     return (
       <div className="flex flex-col items-center justify-center w-full h-full bg-gray-50 text-gray-400">
-        <FileText size={32} className="mb-2 opacity-50" />
-        <span className="text-[10px] uppercase tracking-wider font-bold">Cover Preview</span>
+        <FileText size={32} className={`${!error ? 'animate-pulse' : ''} mb-2 opacity-50`} />
+        <span className="text-[10px] uppercase tracking-wider font-bold">
+          {error ? "Error Loading Preview" : "Loading Preview..."}
+        </span>
       </div>
     );
   }
+
+  const { Document, Page } = PDF;
 
   return (
     <div className="w-full h-full flex items-center justify-center bg-white overflow-hidden">
