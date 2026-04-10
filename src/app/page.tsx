@@ -103,7 +103,7 @@ export default async function Home() {
           <h2 className="text-3xl font-bold text-surrey-blue mb-6">
             {settings?.missionTitle || "Our Mission"}
           </h2>
-          <p className="text-lg text-gray-700 leading-relaxed">
+          <p className="text-lg text-body-text leading-relaxed">
             {settings?.missionDescription || "Surrey Capital Research is the University of Surrey's premier financial organization. We bridge the gap between academic theory and front-office reality by producing rigorous, unbiased market analysis."}
           </p>
         </div>
@@ -128,7 +128,7 @@ export default async function Home() {
             ].map((dept) => (
               <div key={dept.name} className="bg-surrey-light rounded-lg p-6 border-t-4 border-surrey-gold shadow-sm hover:shadow-md transition-shadow">
                 <h3 className="text-xl font-bold text-surrey-blue mb-3">{dept.name}</h3>
-                <p className="text-surrey-blue/80 mb-6 text-sm">{dept.desc}</p>
+                <p className="text-body-text/80 mb-6 text-sm">{dept.desc}</p>
                 <Link href={`/departments/${dept.slug}`} className="text-surrey-blue font-semibold text-sm hover:text-surrey-gold transition-colors">
                   Learn more &rarr;
                 </Link>

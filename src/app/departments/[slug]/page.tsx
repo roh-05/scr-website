@@ -178,7 +178,7 @@ export default async function DepartmentPage(props: { params: Promise<{ slug: st
               <h2 className="text-2xl font-bold text-surrey-blue">Desk Mandate</h2>
             </div>
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-              <p className="text-gray-600 text-lg leading-relaxed">
+              <p className="text-body-text text-lg leading-relaxed">
                 {deptData.overview}
               </p>
             </div>

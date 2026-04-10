@@ -105,19 +105,19 @@ export default async function PublicationDetailPage({ params }: { params: Promis
 
             {/* Meta Data Row */}
             <div className="flex flex-wrap items-center gap-y-4 gap-x-6 pb-6 lg:pb-8 mb-6 lg:mb-8 border-b border-gray-200">
-              <div className="flex items-center text-gray-600">
+              <div className="flex items-center text-body-text">
                 <Users size={18} className="mr-2 text-gray-400" />
                 <span className="font-medium text-sm lg:text-base">{report.authorNames}</span>
               </div>
               <div className="hidden sm:block text-gray-300">•</div>
-              <div className="flex items-center text-gray-600">
+              <div className="flex items-center text-body-text">
                 <Calendar size={18} className="mr-2 text-gray-400" />
                 <span className="font-medium text-sm lg:text-base">{formatDate(report.publishedAt || report.createdAt)}</span>
               </div>
             </div>
 
             {/* Abstract / Excerpt */}
-            <div className="prose prose-lg text-gray-600 mb-10 max-w-4xl">
+            <div className="prose prose-lg text-body-text mb-10 max-w-4xl">
               <h3 className="text-lg font-bold text-surrey-blue mb-3">Executive Summary</h3>
               <p className="leading-relaxed text-sm md:text-base whitespace-pre-wrap">
                 {report.excerpt || "No abstract provided for this publication."}

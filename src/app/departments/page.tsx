@@ -134,7 +134,7 @@ export default async function DepartmentsIndexPage() {
                     </div>
 
                     {/* Description */}
-                    <p className="text-gray-600 leading-relaxed mb-10 flex-grow">
+                    <p className="text-body-text leading-relaxed mb-10 flex-grow">
                       {deskDesc}
                     </p>
 

@@ -54,6 +54,7 @@ export default async function RootLayout({
                 --color-surrey-beige: ${settings.secondaryBgColor|| "#F7F8FA"};
                 --color-surrey-grey:  ${settings.borderColor     || "#EBF0F5"};
                 --color-text-muted:   ${settings.mutedColor      || "#6B7F94"};
+                --color-body-text:    ${settings.bodyTextColor   || "#1E2B36"};
                 --font-heading: '${settings.headingFont || "EB Garamond"}', serif;
                 --font-body:    '${settings.bodyFont    || "Merriweather"}', serif;
               }

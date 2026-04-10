@@ -105,6 +105,7 @@ export default function SettingsPage() {
     secondaryBgColor: "#F7F8FA",
     mutedColor: "#6B7F94",
     borderColor: "#EBF0F5",
+    bodyTextColor: "#1E2B36",
     headingFont: "EB Garamond",
     bodyFont: "Merriweather",
 
@@ -572,6 +573,15 @@ export default function SettingsPage() {
                   </div>
                   <p className="text-[10px] text-text-muted italic">Used for borders, lines, and table separators.</p>
                 </div>
+
+                <div className="space-y-3">
+                  <label className="label">Body Text Color</label>
+                  <div className="flex gap-3">
+                    <input type="color" name="bodyTextColor" value={data.bodyTextColor} onChange={handleChange} className="h-11 w-11 rounded-lg border border-surrey-grey/30 p-1 cursor-pointer" />
+                    <input type="text" name="bodyTextColor" value={data.bodyTextColor} onChange={handleChange} className="input font-mono text-sm uppercase" />
+                  </div>
+                  <p className="text-[10px] text-text-muted italic">Used for all paragraph and body text on light backgrounds.</p>
+                </div>
               </div>
             </section>
 
@@ -624,6 +634,7 @@ export default function SettingsPage() {
                         <div className="flex-1 space-y-2">
                              <h3 className="text-xl font-bold" style={{ color: data.primaryColor, fontFamily: `'${data.headingFont}', serif` }}>Dynamic Branding Example</h3>
                              <p className="text-sm" style={{ color: data.mutedColor }}>This is how your chosen colors will look together in various UI components.</p>
+                             <p className="text-sm" style={{ color: data.bodyTextColor }}>This paragraph demonstrates the body text color — Charcoal (#1E2B36) by default — for comfortable reading on light backgrounds.</p>
                         </div>
                     </div>
 

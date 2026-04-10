@@ -278,7 +278,7 @@ function ReportTableRow({ report: p }: { report: ReportData }) {
                                     Authored by <span className="text-surrey-blue font-bold">{p.authorNames}</span>
                                 </p>
 
-                                <p className="text-gray-600 text-sm leading-relaxed mb-4 max-w-3xl">
+                                <p className="text-body-text text-sm leading-relaxed mb-4 max-w-3xl">
                                     {p.excerpt || "All research is produced independently by students of the University of Surrey. Click below to view the full report."}
                                 </p>
 

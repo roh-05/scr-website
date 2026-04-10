@@ -89,6 +89,7 @@ model SiteSettings {
   secondaryBgColor      String   @default("#e9e4d4")
   mutedColor            String   @default("#7b8797")
   borderColor           String   @default("#bfc5ca")
+  bodyTextColor         String   @default("#1E2B36")
   headingFont           String   @default("EB Garamond")
   bodyFont              String   @default("Merriweather")
 

@@ -10,6 +10,7 @@
   --color-surrey-beige: #e9e4d4;    /* Light Beige for alternating sections */
   --color-surrey-grey: #bfc5ca;     /* Light Blue-Grey */
   --color-text-muted: #7b8797;      /* Medium Grey for metadata/borders */
+  --color-body-text: #1E2B36;        /* Charcoal for body text on light backgrounds */
 
   /* Map Admin Settings font variables to Tailwind font utilities */
   --font-sans: var(--font-body);
@@ -24,7 +25,7 @@
 @layer base {
   body {
     background-color: var(--color-surrey-light);
-    color: var(--color-surrey-blue); /* Ensures all default text uses Dark Slate Blue */
+    color: var(--color-body-text); /* Charcoal (#1E2B36) for readable body text per branding */
     font-family: var(--font-sans);
     margin: 0;
     padding: 0;

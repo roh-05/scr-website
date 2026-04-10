@@ -61,6 +61,7 @@ const settingsSchema = z.object({
   secondaryBgColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
   mutedColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
   borderColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  bodyTextColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
   headingFont: z.string().optional(),
   bodyFont: z.string().optional(),
 });
@@ -99,6 +100,7 @@ export async function getSiteSettings(): Promise<ActionResponse<SiteSettingsWith
         secondaryBgColor: "#F7F8FA",
         mutedColor: "#6B7F94",
         borderColor: "#EBF0F5",
+        bodyTextColor: "#1E2B36",
         headingFont: "EB Garamond",
         bodyFont: "Merriweather",
       },
