@@ -12,26 +12,44 @@ function formatDept(dept: string) {
 }
 
 export default async function PublicationsPage() {
-  // 1. Fetch only PUBLISHED reports directly from the database
-  const rawReports = await prisma.report.findMany({
-    where: { status: 'PUBLISHED' },
-    orderBy: { createdAt: 'desc' }, // Newest first
+  // 1. Fetch data from the database
+  const [rawReports, deptMetadata] = await Promise.all([
+    prisma.report.findMany({
+      where: { status: 'PUBLISHED' },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.departmentMetadata.findMany({
+      select: { department: true, tagColor: true }
+    })
+  ]);
+
+  // 2. Create a color mapping for the client
+  const departmentColors: Record<string, string> = {};
+  deptMetadata.forEach(meta => {
+    if (meta.tagColor) {
+      departmentColors[meta.department] = meta.tagColor;
+    }
   });
 
-  // 2. Format the data into a clean, serializable object for the Client component
+  // 3. Format the data into a clean, serializable object for the Client component
   const reports = rawReports.map((r) => ({
     id: r.id,
     title: r.title,
     department: formatDept(r.department),
+    departmentEnum: r.department, // Keep the enum for color lookup
     authorNames: r.authorNames,
     fileUrl: r.fileUrl,
     coverUrl: r.coverUrl,
     excerpt: r.excerpt,
     tags: r.tags,
-    // Convert the Date object to an ISO string to pass it safely to the client
     date: r.publishedAt ? r.publishedAt.toISOString() : r.createdAt.toISOString(),
   }));
 
-  // 3. Render the interactive UI, injecting the live database data
-  return <PublicationsClient initialReports={reports} />;
+  // 4. Render the interactive UI, injecting the live database data
+  return (
+    <PublicationsClient 
+      initialReports={reports} 
+      departmentColors={departmentColors}
+    />
+  );
 }

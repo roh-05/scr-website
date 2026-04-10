@@ -5,8 +5,6 @@ import { useState, useMemo } from 'react';
 import { Search, Filter, FileText, Download, ExternalLink, X, LayoutGrid, List, ChevronDown, ChevronUp } from 'lucide-react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { DEPT_COLORS } from '@/lib/constants';
-
 import PublicationCover from '@/components/PublicationCover';
 
 const DEPARTMENTS = ['All', 'Equity Research', 'M&A', 'Quantitative Research', 'Economic Research'];
@@ -24,6 +22,7 @@ type ReportData = {
     id: string;
     title: string;
     department: string;
+    departmentEnum: string;
     authorNames: string;
     fileUrl: string;
     coverUrl?: string | null;
@@ -32,7 +31,13 @@ type ReportData = {
     date: string;
 };
 
-export default function PublicationsClient({ initialReports }: { initialReports: ReportData[] }) {
+export default function PublicationsClient({ 
+    initialReports, 
+    departmentColors 
+}: { 
+    initialReports: ReportData[], 
+    departmentColors: Record<string, string> 
+}) {
     const [query, setQuery] = useState('');
     const [activeDept, setActiveDept] = useState('All');
     const [viewMode, setViewMode] = useState<'gallery' | 'list'>('gallery');
@@ -186,7 +191,13 @@ export default function PublicationsClient({ initialReports }: { initialReports:
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100">
-                                        {results.map((p) => <ReportTableRow key={p.id} report={p} />)}
+                                        {results.map((p) => (
+                                            <ReportTableRow 
+                                                key={p.id} 
+                                                report={p} 
+                                                colors={departmentColors} 
+                                            />
+                                        ))}
                                     </tbody>
                                 </table>
                             </div>
@@ -216,20 +227,17 @@ function ReportCard({ report: p }: { report: ReportData }) {
 
 // ── COMPONENT 2: SLEEK TABLE ROW ──
 
-function ReportTableRow({ report: p }: { report: ReportData }) {
+function ReportTableRow({ 
+    report: p, 
+    colors 
+}: { 
+    report: ReportData, 
+    colors: Record<string, string> 
+}) {
     const [isExpanded, setIsExpanded] = useState(false);
     
-    // Safety fallback since we are mapping the raw database ENUMs to strings
-    const mappedDeptKeys: Record<string, string> = {
-        'Equity Research': 'EQUITY_RESEARCH',
-        'M&A': 'MERGERS_ACQUISITIONS',
-        'Quantitative Research': 'QUANTITATIVE_FINANCE',
-        'Economic Research': 'ECONOMIC_RESEARCH'
-    };
-    
-    const dbKey = mappedDeptKeys[p.department] || p.department;
-    // @ts-ignore
-    const deptStyle = DEPT_COLORS[dbKey] || { bg: '#bfc5ca', text: '#fff' };
+    // Get the color from the database metadata, fallback to brand blue if missing
+    const tagColor = colors[p.departmentEnum] || '#354a61';
 
     return (
         <>
@@ -244,7 +252,7 @@ function ReportTableRow({ report: p }: { report: ReportData }) {
                 <td className="py-5 px-6 whitespace-nowrap align-middle">
                     <span
                         className="inline-block px-3 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-wider"
-                        style={{ backgroundColor: `${deptStyle.bg}15`, color: deptStyle.bg }}
+                        style={{ backgroundColor: `${tagColor}15`, color: tagColor }}
                     >
                         {p.department}
                     </span>

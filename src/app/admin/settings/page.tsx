@@ -383,6 +383,9 @@ export default function SettingsPage() {
                 <h2 className="text-xl font-bold text-surrey-blue flex items-center gap-2">
                   <Mail className="text-surrey-gold" size={20} /> Contact Info & Social
                 </h2>
+                <button onClick={handlePrimarySave} disabled={isSaving} className="btn-primary-sm">
+                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Save Info
+                </button>
               </div>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
@@ -477,7 +480,12 @@ export default function SettingsPage() {
             </section>
 
             <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm">
-              <h2 className="text-xl font-bold text-surrey-blue mb-6 border-b border-surrey-grey/20 pb-4">Mission Statement</h2>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-surrey-blue">Mission Statement</h2>
+                <button onClick={handlePrimarySave} disabled={isSaving} className="btn-primary-sm">
+                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Save Mission
+                </button>
+              </div>
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <label className="label">Heading</label>
@@ -491,7 +499,12 @@ export default function SettingsPage() {
             </section>
 
             <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm">
-              <h2 className="text-xl font-bold text-surrey-blue mb-6 border-b border-surrey-grey/20 pb-4">Bottom Call-To-Action (CTA)</h2>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-surrey-blue">Bottom Call-To-Action (CTA)</h2>
+                <button onClick={handlePrimarySave} disabled={isSaving} className="btn-primary-sm">
+                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Save CTA
+                </button>
+              </div>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="label">Heading</label>
@@ -793,6 +806,38 @@ export default function SettingsPage() {
                 ))}
               </div>
             </section>
+
+            {/* LEADERSHIP & RECRUITMENT EDITOR */}
+            <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-surrey-blue flex items-center gap-2">
+                  <ShieldAlert className="text-surrey-gold" size={20} /> Leadership & Recruitment
+                </h2>
+                <button onClick={handlePrimarySave} disabled={isSaving} className="btn-primary-sm">
+                  {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Save Recruitment
+                </button>
+              </div>
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="label">Leadership Intro Text</label>
+                  <textarea rows={2} name="leadershipIntro" value={data.leadershipIntro} onChange={handleChange} className="input h-auto resize-none" />
+                </div>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="label">Join Heading</label>
+                    <input type="text" name="joinHeading" value={data.joinHeading} onChange={handleChange} className="input" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="label">Join URL / Link</label>
+                    <input type="text" name="joinUrl" value={data.joinUrl} onChange={handleChange} className="input" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="label">Join Description Text</label>
+                  <textarea rows={3} name="joinText" value={data.joinText} onChange={handleChange} className="input h-auto resize-none" />
+                </div>
+              </div>
+            </section>
           </div>
         )}
 
@@ -887,6 +932,24 @@ export default function SettingsPage() {
                           className="input" 
                           placeholder="e.g., TrendingUp, Briefcase"
                         />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="label">Tag Color (Publications Table)</label>
+                        <div className="flex gap-3">
+                          <input 
+                            type="color" 
+                            value={data.deptMetadata.find((m:any) => m.department === activeDept)?.tagColor || "#354a61"} 
+                            onChange={(e) => handleDeptMetaChange("tagColor", e.target.value)}
+                            className="h-11 w-11 rounded-lg border border-surrey-grey/30 p-1 cursor-pointer" 
+                          />
+                          <input 
+                            type="text" 
+                            value={data.deptMetadata.find((m:any) => m.department === activeDept)?.tagColor || "#354a61"} 
+                            onChange={(e) => handleDeptMetaChange("tagColor", e.target.value)}
+                            className="input font-mono text-sm uppercase" 
+                            placeholder="#HEXCOLOR"
+                          />
+                        </div>
                       </div>
                     </div>
 

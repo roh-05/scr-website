@@ -153,6 +153,7 @@ model DepartmentMetadata {
   department  DepartmentType @unique
   name        String?        // Hero title override
   description String?        @db.Text // Hero teaser override
+  tagColor    String?        @default("#354a61") // Color for the department tag
   iconName    String?        // Lucide icon name override
   focus       String
   overview    String         @db.Text
