@@ -1,0 +1,181 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+
+enum DepartmentType {
+  EXECUTIVE
+  EQUITY_RESEARCH
+  MERGERS_ACQUISITIONS
+  QUANTITATIVE_FINANCE
+  ECONOMIC_RESEARCH
+}
+
+enum MemberStatus {
+  ACTIVE
+  ALUMNI
+}
+
+enum ReportStatus {
+  DRAFT
+  PUBLISHED
+}
+
+// ─── TABLES (Models) ───
+
+model TeamMember {
+  id             String         @id @default(uuid())
+  firstName      String
+  lastName       String
+  role           String
+  department     DepartmentType
+  email          String         @unique
+  linkedinUrl    String?        
+  imageUrl       String?
+  status         MemberStatus   @default(ACTIVE)
+  isLeadership   Boolean        @default(false)
+  
+  // --- ALUMNI FIELDS ---
+  classYear      String?
+  currentRole    String?
+  currentCompany String?
+  location       String?
+  alumniQuote    String?
+
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Report {
+  id             String         @id @default(uuid())
+  title          String
+  department     DepartmentType
+  authorNames    String
+  status         ReportStatus   @default(DRAFT)
+  fileUrl        String         // Link to the PDF storage
+  coverUrl       String?        // Link to the generated cover image
+  fileSizeBytes  Int?
+  publishedAt    DateTime?
+  excerpt        String?        @db.Text
+  tags           String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model SiteSettings {
+  id                    Int      @id @default(1) // Forces only one row to ever exist
+  organizationName      String   @default("Surrey Capital Research")
+  universityAffiliation String   @default("University of Surrey")
+  globalDescription     String
+  contactEmail          String
+  linkedinUrl           String
+  officeAddress         String
+  maintenanceMode       Boolean  @default(false)
+  equityEmail           String   @default("equities@surreycapital.org")
+  mnaEmail              String   @default("mna@surreycapital.org")
+  quantEmail            String   @default("quant@surreycapital.org")
+  economicsEmail        String   @default("economics@surreycapital.org")
+  analyticsId           String?
+  updatedAt             DateTime @updatedAt
+
+  // ─── BRANDING & COLORS ───
+  primaryColor          String   @default("#354a61")
+  accentColor           String   @default("#ac9741")
+  backgroundColor       String   @default("#fafbf8")
+  secondaryBgColor      String   @default("#e9e4d4")
+  mutedColor            String   @default("#7b8797")
+  borderColor           String   @default("#bfc5ca")
+  headingFont           String   @default("EB Garamond")
+  bodyFont              String   @default("Merriweather")
+
+  // ─── HOMEPAGE CONTENT ───
+  heroTitle          String   @default("Student-Led Financial Excellence")
+  heroSubtitle       String   @default("Surrey Capital Research is the premier student-led financial organization bridging the gap between academic theory and institutional market reality.")
+  heroImageUrl       String   @default("/hero-visual.webp")
+  missionTitle       String   @default("Our Mission")
+  missionDescription String   @default("Surrey Capital Research is the University of Surrey's premier financial organization. We bridge the gap between academic theory and front-office reality by producing rigorous, unbiased market analysis.")
+  ctaHeading         String   @default("Ready to Join the Team?")
+  ctaSubtext         String   @default("We are always looking for driven individuals with a passion for financial markets. Apply to join one of our research desks and gain hands-on experience in institutional-grade analysis.")
+
+  // ─── ABOUT PAGE ───
+  aboutHeroTitle        String   @default("Student-Led. Institutional Standards.")
+  aboutHeroSubtitle     String?
+  aboutHeroDescription1 String   @default("Surrey Capital Research is the University of Surrey's premier financial organization. We bridge the gap between academic theory and front-office reality by producing rigorous, unbiased market analysis.")
+  aboutHeroDescription2 String   @default("Our mission is to empower the next generation of financial leaders by providing hands-on experience in financial modeling, macroeconomic forecasting, and strategic advisory.")
+  aboutHeroImageUrl     String?
+  researchTitle         String   @default("What We Research")
+  researchIntro         String   @default("Our organization is divided into four specialized desks, each operating with the rigor of a professional financial institution.")
+  leadershipIntro       String   @default("Meet the executive committee dedicated to driving the strategic vision and research quality of Surrey Capital Research.")
+  joinHeading           String   @default("Ready to Accelerate Your Career?")
+  joinText              String   @default("Applications for the upcoming semester are currently open. Join a network of driven individuals and build the skills required for the modern financial sector.")
+  joinUrl               String   @default("https://linkedin.com/company/surrey-capital-research")
+
+  // ─── DEPARTMENTS INDEX ───
+  deptIndexTitle        String   @default("Research Desks")
+  deptIndexIntro        String   @default("Explore our specialized research divisions. Each desk produces institutional-grade analysis tailored to their specific market mandate.")
+
+  // ─── CONTACT PAGE ───
+  contactHeroTitle       String   @default("Contact Our Team")
+  contactHeroDescription String   @default("Whether you are a prospective analyst, a corporate partner, or an alumnus, we welcome your inquiries. Reach out to us using the form below or contact a specific department directly.")
+
+  // ─── GLOBAL / FOOTER ───
+  logoUrl               String?
+  footerCopyright       String   @default("© 2025 Surrey Capital Research. All Rights Reserved.")
+}
+
+model Faq {
+  id        String   @id @default(uuid())
+  question  String
+  answer    String   @db.Text
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ResearchArea {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @db.Text
+  iconName    String?  // Lucide icon key
+  href        String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model DepartmentMetadata {
+  id          String         @id @default(uuid())
+  department  DepartmentType @unique
+  name        String?        // Hero title override
+  description String?        @db.Text // Hero teaser override
+  iconName    String?        // Lucide icon name override
+  focus       String
+  overview    String         @db.Text
+  summary     String?        @db.Text
+  updatedAt   DateTime       @updatedAt
+}
+
+model Project {
+  id          String         @id @default(uuid())
+  department  DepartmentType
+  title       String
+  type        String         // e.g., 'Sector Initiation', 'Deep Dive'
+  status      String         // e.g., 'Drafting', 'In Review'
+  order       Int            @default(0)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model ContactSubmission {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  subject   String
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
