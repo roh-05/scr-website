@@ -19,6 +19,12 @@ const teamMemberSchema = z.object({
   imageUrl: z.union([z.string().url("Invalid URL").optional(), z.literal("").transform(() => undefined)]),
   status: z.nativeEnum(MemberStatus).optional(),
   isLeadership: z.boolean().optional(),
+  // Alumni-specific fields
+  classYear: z.string().max(20).optional().nullable(),
+  currentRole: z.string().max(100).optional().nullable(),
+  currentCompany: z.string().max(100).optional().nullable(),
+  location: z.string().max(100).optional().nullable(),
+  alumniQuote: z.string().max(500).optional().nullable(),
 });
 
 const teamMemberUpdateSchema = teamMemberSchema.partial();
@@ -78,6 +84,12 @@ export async function addTeamMember(data: any): Promise<ActionResponse<unknown>>
         imageUrl: validData.imageUrl || null,
         status: validData.status || MemberStatus.ACTIVE,
         isLeadership: validData.isLeadership || false,
+        // Alumni fields
+        classYear: validData.classYear || null,
+        currentRole: validData.currentRole || null,
+        currentCompany: validData.currentCompany || null,
+        location: validData.location || null,
+        alumniQuote: validData.alumniQuote || null,
       },
     });
 

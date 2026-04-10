@@ -68,12 +68,12 @@ export default function AlumniClient({ initialAlumni }: { initialAlumni: AlumniD
           </div>
 
           {/* Department Filters */}
-          <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 hide-scrollbar">
+          <div className="flex flex-wrap gap-2 w-full md:w-auto">
             {DEPARTMENTS.map((dept) => (
               <button
                 key={dept}
                 onClick={() => setActiveDept(dept)}
-                className={`whitespace-nowrap px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${
+                className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   activeDept === dept 
                     ? "bg-surrey-blue text-surrey-light shadow-md" 
                     : "bg-surrey-beige text-text-muted hover:bg-surrey-grey/30 hover:text-surrey-blue"

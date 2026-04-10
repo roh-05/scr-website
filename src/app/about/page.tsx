@@ -116,10 +116,10 @@ export default async function AboutPage() {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="flex flex-wrap justify-center gap-12">
             {leadershipTeam.length > 0 ? (
               leadershipTeam.map((leader) => (
-                <div key={leader.id} className="flex flex-col items-center text-center">
+                <div key={leader.id} className="flex flex-col items-center text-center w-48">
                   <div className="w-40 h-40 rounded-full bg-surrey-grey/20 mb-6 overflow-hidden relative border-4 border-surrey-light shadow-lg">
                     {leader.imageUrl ? (
                       <Image 
@@ -157,7 +157,7 @@ export default async function AboutPage() {
                 </div>
               ))
             ) : (
-              <p className="col-span-full text-center text-text-muted">Leadership team profiles are currently being updated.</p>
+              <p className="w-full text-center text-text-muted">Leadership team profiles are currently being updated.</p>
             )}
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { getTeamMembers, addTeamMember, deleteTeamMember } from "@/actions/team";
+import { getTeamMembers, addTeamMember, updateTeamMember, deleteTeamMember } from "@/actions/team";
 import { uploadImageToStorage } from "@/lib/supabase";
 import { DepartmentType, MemberStatus } from "@prisma/client";
 import { 
@@ -14,30 +14,46 @@ import {
   Upload,
   Shield,
   GraduationCap,
-  Loader2
+  Loader2,
+  X,
+  Save,
+  Briefcase,
+  MapPin,
+  Quote
 } from "lucide-react";
+
+// Default blank form state
+const EMPTY_FORM = {
+    firstName: "",
+    lastName: "",
+    role: "",
+    department: "EQUITY_RESEARCH" as DepartmentType,
+    email: "",
+    linkedinUrl: "",
+    status: "ACTIVE" as MemberStatus,
+    isLeadership: false,
+    classYear: "",
+    currentRole: "",
+    currentCompany: "",
+    location: "",
+    alumniQuote: "",
+};
 
 export default function TeamManagementPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [isAddOpen, setIsAddOpen] = useState(false);
+
+    // Edit State
+    const [editingId, setEditingId] = useState<string | null>(null);
 
     // Dynamic State
     const [team, setTeam] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Form State
+    // Form State (shared for add + edit)
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [formData, setFormData] = useState({
-        firstName: "",
-        lastName: "",
-        role: "",
-        department: "EQUITY_RESEARCH" as DepartmentType,
-        email: "",
-        linkedinUrl: "",
-        status: "ACTIVE" as MemberStatus,
-        isLeadership: false,
-    });
+    const [formData, setFormData] = useState(EMPTY_FORM);
 
     useEffect(() => {
         async function loadTeam() {
@@ -50,13 +66,44 @@ export default function TeamManagementPage() {
         loadTeam();
     }, []);
 
+    const resetForm = () => {
+        setFormData(EMPTY_FORM);
+        setSelectedFile(null);
+        setEditingId(null);
+        setIsAddOpen(false);
+    };
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             setSelectedFile(e.target.files[0]);
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    // --- OPEN EDIT FORM ---
+    const handleEditClick = (member: any) => {
+        // Close add panel if open
+        setIsAddOpen(false);
+        setEditingId(member.id);
+        setSelectedFile(null);
+        setFormData({
+            firstName: member.firstName || "",
+            lastName: member.lastName || "",
+            role: member.role || "",
+            department: member.department || "EQUITY_RESEARCH",
+            email: member.email || "",
+            linkedinUrl: member.linkedinUrl || "",
+            status: member.status || "ACTIVE",
+            isLeadership: member.isLeadership || false,
+            classYear: member.classYear || "",
+            currentRole: member.currentRole || "",
+            currentCompany: member.currentCompany || "",
+            location: member.location || "",
+            alumniQuote: member.alumniQuote || "",
+        });
+    };
+
+    // --- ADD SUBMIT ---
+    const handleAddSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
 
@@ -70,6 +117,11 @@ export default function TeamManagementPage() {
                 ...formData,
                 linkedinUrl: formData.linkedinUrl || undefined,
                 imageUrl,
+                classYear: formData.classYear || null,
+                currentRole: formData.currentRole || null,
+                currentCompany: formData.currentCompany || null,
+                location: formData.location || null,
+                alumniQuote: formData.alumniQuote || null,
             };
 
             const result = await addTeamMember(payload);
@@ -79,20 +131,59 @@ export default function TeamManagementPage() {
             }
 
             if (result.data) {
-                // Prepend to top
                 setTeam([result.data, ...team]); 
-                setIsAddOpen(false);
-                setSelectedFile(null);
-                setFormData({
-                    firstName: "",
-                    lastName: "",
-                    role: "",
-                    department: "EQUITY_RESEARCH",
-                    email: "",
-                    linkedinUrl: "",
-                    status: "ACTIVE",
-                    isLeadership: false,
-                });
+                resetForm();
+            }
+        } catch (error) {
+            console.error(error);
+            alert("An unexpected error occurred.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    // --- EDIT SUBMIT ---
+    const handleEditSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingId) return;
+        setIsSubmitting(true);
+
+        try {
+            let imageUrl: string | undefined = undefined;
+            if (selectedFile) {
+                imageUrl = await uploadImageToStorage(selectedFile) || undefined;
+            }
+
+            const payload: any = {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                role: formData.role,
+                department: formData.department,
+                email: formData.email,
+                linkedinUrl: formData.linkedinUrl || undefined,
+                status: formData.status,
+                isLeadership: formData.isLeadership,
+                classYear: formData.classYear || null,
+                currentRole: formData.currentRole || null,
+                currentCompany: formData.currentCompany || null,
+                location: formData.location || null,
+                alumniQuote: formData.alumniQuote || null,
+            };
+
+            // Only include imageUrl if a new file was uploaded
+            if (imageUrl) {
+                payload.imageUrl = imageUrl;
+            }
+
+            const result = await updateTeamMember(editingId, payload);
+            if (!result.success) {
+                alert(result.error);
+                return;
+            }
+
+            if (result.data) {
+                setTeam(team.map(m => m.id === editingId ? result.data : m));
+                resetForm();
             }
         } catch (error) {
             console.error(error);
@@ -107,6 +198,7 @@ export default function TeamManagementPage() {
         const result = await deleteTeamMember(id);
         if (result.success) {
             setTeam(team.filter(m => m.id !== id));
+            if (editingId === id) resetForm();
         } else {
             alert(result.error || "Failed to delete.");
         }
@@ -118,6 +210,13 @@ export default function TeamManagementPage() {
         m.role.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // Check if we're showing the form (add or edit)
+    const isFormOpen = isAddOpen || editingId !== null;
+    const isEditMode = editingId !== null;
+
+    // Current member being edited (for showing existing photo)
+    const editingMember = isEditMode ? team.find(m => m.id === editingId) : null;
+
     return (
         <main className="p-8 lg:p-12">
 
@@ -127,21 +226,41 @@ export default function TeamManagementPage() {
                     <p className="text-text-muted mt-1">Manage current analysts, leadership, and alumni profiles.</p>
                 </div>
                 <button
-                    onClick={() => setIsAddOpen(!isAddOpen)}
+                    onClick={() => {
+                        if (isAddOpen) {
+                            resetForm();
+                        } else {
+                            resetForm();
+                            setIsAddOpen(true);
+                        }
+                    }}
                     className="bg-surrey-gold text-surrey-light px-6 py-2.5 rounded-lg font-bold hover:bg-surrey-gold/90 transition-colors shadow-sm flex items-center justify-center gap-2"
                 >
                     {isAddOpen ? "Cancel" : <><UserPlus size={18} /> Add Member</>}
                 </button>
             </header>
 
-            {/* ── ADD MEMBER MODAL/SECTION (Toggled) ── */}
-            {isAddOpen && (
+            {/* ── ADD / EDIT FORM (Shared Layout) ── */}
+            {isFormOpen && (
                 <div className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm mb-10 animate-in fade-in slide-in-from-top-4">
-                    <h2 className="text-xl font-bold text-surrey-blue mb-6 flex items-center gap-2">
-                        <UserPlus className="text-surrey-gold" /> Add New Team Member
-                    </h2>
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-xl font-bold text-surrey-blue flex items-center gap-2">
+                            {isEditMode ? (
+                                <><Edit className="text-surrey-gold" /> Edit Team Member</>
+                            ) : (
+                                <><UserPlus className="text-surrey-gold" /> Add New Team Member</>
+                            )}
+                        </h2>
+                        <button
+                            onClick={resetForm}
+                            className="p-2 text-text-muted hover:text-surrey-blue hover:bg-surrey-light rounded-md transition-colors"
+                            title="Close"
+                        >
+                            <X size={20} />
+                        </button>
+                    </div>
 
-                    <form onSubmit={handleSubmit} className="grid md:grid-cols-3 gap-8">
+                    <form onSubmit={isEditMode ? handleEditSubmit : handleAddSubmit} className="grid md:grid-cols-3 gap-8">
                         {/* Profile Picture Upload */}
                         <div className="col-span-1 flex flex-col items-center">
                             <div className="relative w-32 h-32 rounded-full border-2 border-dashed border-surrey-grey/60 bg-surrey-light/50 flex flex-col items-center justify-center text-center hover:bg-surrey-beige/30 hover:border-surrey-gold/50 transition-colors cursor-pointer group mb-4 overflow-hidden">
@@ -152,7 +271,9 @@ export default function TeamManagementPage() {
                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                 />
                                 {selectedFile ? (
-                                    <Image src={URL.createObjectURL(selectedFile)} alt="Preview" fill className="object-cover" />
+                                    <Image src={URL.createObjectURL(selectedFile)} alt="Preview" fill sizes="128px" className="object-cover" />
+                                ) : isEditMode && editingMember?.imageUrl ? (
+                                    <Image src={editingMember.imageUrl} alt="Current" fill sizes="128px" className="object-cover opacity-80" />
                                 ) : (
                                     <>
                                         <Upload className="text-surrey-blue/50 group-hover:text-surrey-blue mb-2 transition-colors" size={24} />
@@ -160,7 +281,12 @@ export default function TeamManagementPage() {
                                     </>
                                 )}
                             </div>
-                            <p className="text-xs text-text-muted text-center px-4">Square image recommended. Max 2MB.</p>
+                            <p className="text-xs text-text-muted text-center px-4">
+                                {isEditMode && editingMember?.imageUrl && !selectedFile 
+                                    ? "Click to replace current photo" 
+                                    : "Square image recommended. Max 2MB."
+                                }
+                            </p>
                         </div>
 
                         {/* Member Details Form */}
@@ -208,7 +334,7 @@ export default function TeamManagementPage() {
                                         className="w-full bg-surrey-light border border-surrey-grey/60 text-surrey-blue rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 transition-all appearance-none"
                                     >
                                         <option value="EQUITY_RESEARCH">Equity Research</option>
-                                        <option value="MERGERS_ACQUISITIONS">Mergers & Acquisitions</option>
+                                        <option value="MERGERS_ACQUISITIONS">Mergers &amp; Acquisitions</option>
                                         <option value="QUANTITATIVE_FINANCE">Quantitative Finance</option>
                                         <option value="ECONOMIC_RESEARCH">Economic Research</option>
                                         <option value="EXECUTIVE">Executive</option>
@@ -248,7 +374,7 @@ export default function TeamManagementPage() {
                                         onChange={(e) => setFormData({...formData, isLeadership: e.target.checked})}
                                         className="w-4 h-4 rounded border-surrey-grey/60 text-surrey-gold focus:ring-surrey-gold/50" 
                                     />
-                                    <label htmlFor="leadership" className="text-sm font-medium text-surrey-blue">Display in "Leadership Team" section</label>
+                                    <label htmlFor="leadership" className="text-sm font-medium text-surrey-blue">Display in &quot;Leadership Team&quot; section</label>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <label className="text-sm font-medium text-surrey-blue">Status:</label>
@@ -263,13 +389,94 @@ export default function TeamManagementPage() {
                                 </div>
                             </div>
 
-                            <div className="flex justify-end pt-4">
+                            {/* ── ALUMNI FIELDS (shown when status is ALUMNI) ── */}
+                            {formData.status === "ALUMNI" && (
+                                <div className="mt-4 pt-4 border-t border-surrey-grey/30">
+                                    <h3 className="text-sm font-bold text-surrey-blue mb-3 flex items-center gap-2">
+                                        <GraduationCap size={16} className="text-surrey-gold" />
+                                        Alumni Details
+                                    </h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-bold text-surrey-blue mb-1.5">Class Year</label>
+                                            <input 
+                                                type="text" 
+                                                value={formData.classYear}
+                                                onChange={(e) => setFormData({...formData, classYear: e.target.value})}
+                                                className="w-full bg-surrey-light border border-surrey-grey/60 text-surrey-blue rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 transition-all" 
+                                                placeholder="e.g., 2024" 
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-surrey-blue mb-1.5 flex items-center gap-1.5">
+                                                <Briefcase size={13} className="text-text-muted" /> Current Role
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                value={formData.currentRole}
+                                                onChange={(e) => setFormData({...formData, currentRole: e.target.value})}
+                                                className="w-full bg-surrey-light border border-surrey-grey/60 text-surrey-blue rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 transition-all" 
+                                                placeholder="e.g., Analyst at Goldman Sachs" 
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-surrey-blue mb-1.5">Current Company</label>
+                                            <input 
+                                                type="text" 
+                                                value={formData.currentCompany}
+                                                onChange={(e) => setFormData({...formData, currentCompany: e.target.value})}
+                                                className="w-full bg-surrey-light border border-surrey-grey/60 text-surrey-blue rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 transition-all" 
+                                                placeholder="e.g., J.P. Morgan" 
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-surrey-blue mb-1.5 flex items-center gap-1.5">
+                                                <MapPin size={13} className="text-text-muted" /> Location
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                value={formData.location}
+                                                onChange={(e) => setFormData({...formData, location: e.target.value})}
+                                                className="w-full bg-surrey-light border border-surrey-grey/60 text-surrey-blue rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 transition-all" 
+                                                placeholder="e.g., London, UK" 
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="mt-4">
+                                        <label className="block text-sm font-bold text-surrey-blue mb-1.5 flex items-center gap-1.5">
+                                            <Quote size={13} className="text-text-muted" /> Alumni Quote
+                                        </label>
+                                        <textarea 
+                                            value={formData.alumniQuote}
+                                            onChange={(e) => setFormData({...formData, alumniQuote: e.target.value})}
+                                            rows={2}
+                                            className="w-full bg-surrey-light border border-surrey-grey/60 text-surrey-blue rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-surrey-gold/50 transition-all resize-none" 
+                                            placeholder="A short testimonial or reflection on their time at SCR..." 
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="flex justify-end gap-3 pt-4">
+                                <button 
+                                    type="button"
+                                    onClick={resetForm}
+                                    className="px-6 py-3 rounded-lg font-bold text-text-muted hover:text-surrey-blue hover:bg-surrey-light transition-colors"
+                                >
+                                    Cancel
+                                </button>
                                 <button 
                                     type="submit" 
                                     disabled={isSubmitting}
                                     className="bg-surrey-blue text-surrey-light px-8 py-3 rounded-lg font-bold hover:bg-surrey-blue/90 transition-colors flex items-center gap-2 disabled:opacity-70"
                                 >
-                                    {isSubmitting ? <><Loader2 size={16} className="animate-spin" /> Saving...</> : "Save Profile"}
+                                    {isSubmitting ? (
+                                        <><Loader2 size={16} className="animate-spin" /> Saving...</>
+                                    ) : isEditMode ? (
+                                        <><Save size={16} /> Update Profile</>
+                                    ) : (
+                                        "Save Profile"
+                                    )}
                                 </button>
                             </div>
                         </div>
@@ -298,7 +505,7 @@ export default function TeamManagementPage() {
                         <thead>
                             <tr className="bg-surrey-light border-b border-surrey-grey/40">
                                 <th className="py-4 px-6 font-bold text-sm text-surrey-blue uppercase tracking-wider">Member</th>
-                                <th className="py-4 px-6 font-bold text-sm text-surrey-blue uppercase tracking-wider">Role & Dept</th>
+                                <th className="py-4 px-6 font-bold text-sm text-surrey-blue uppercase tracking-wider">Role &amp; Dept</th>
                                 <th className="py-4 px-6 font-bold text-sm text-surrey-blue uppercase tracking-wider">Status</th>
                                 <th className="py-4 px-6 font-bold text-sm text-surrey-blue uppercase tracking-wider text-right">Actions</th>
                             </tr>
@@ -314,10 +521,13 @@ export default function TeamManagementPage() {
                                 </tr>
                             ) : (
                                 filteredTeam.map((member) => (
-                                    <tr key={member.id} className="hover:bg-surrey-light/50 transition-colors group">
+                                    <tr 
+                                        key={member.id} 
+                                        className={`hover:bg-surrey-light/50 transition-colors group ${editingId === member.id ? 'bg-surrey-gold/5 ring-1 ring-inset ring-surrey-gold/30' : ''}`}
+                                    >
                                         <td className="py-4 px-6 flex items-center gap-4">
                                             <div className="w-10 h-10 rounded-full bg-surrey-grey/20 overflow-hidden relative border border-surrey-grey/40 shrink-0">
-                                                <Image src={member.imageUrl || "/headshot-placeholder.jpg"} alt={member.firstName} fill className="object-cover" />
+                                                <Image src={member.imageUrl || "/headshot-placeholder.jpg"} alt={member.firstName} fill sizes="40px" className="object-cover" />
                                             </div>
                                             <div>
                                                 <p className="font-bold text-surrey-blue flex items-center gap-2">
@@ -348,6 +558,13 @@ export default function TeamManagementPage() {
                                         </td>
                                         <td className="py-4 px-6 text-right">
                                             <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button 
+                                                    onClick={() => handleEditClick(member)}
+                                                    className="p-2 text-text-muted hover:text-surrey-gold hover:bg-surrey-gold/10 rounded-md transition-colors" 
+                                                    title="Edit"
+                                                >
+                                                    <Edit size={18} />
+                                                </button>
                                                 <button 
                                                     onClick={() => handleDelete(member.id)}
                                                     className="p-2 text-text-muted hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" 
