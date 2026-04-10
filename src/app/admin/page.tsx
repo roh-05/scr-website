@@ -32,7 +32,6 @@ export default function AdminDashboard() {
       <header className="mb-10 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
         <div>
           <h1 className="text-3xl font-bold text-surrey-blue">Welcome back, Admin</h1>
-          <p className="text-text-muted mt-1">Here is what's happening on the Surrey Capital Research website today.</p>
         </div>
         <Link 
           href="/admin/reports"
@@ -66,7 +65,7 @@ export default function AdminDashboard() {
           <div className="w-12 h-12 bg-surrey-grey/20 rounded-xl flex items-center justify-center mb-4 group-hover:bg-surrey-grey transition-colors">
             <FileEdit size={24} className="text-surrey-blue group-hover:text-surrey-blue transition-colors" />
           </div>
-          <h3 className="font-bold text-surrey-blue text-lg mb-1">Edit Website Copy</h3>
+          <h3 className="font-bold text-surrey-blue text-lg mb-1">Edit Website</h3>
           <p className="text-text-muted text-sm border-t border-transparent leading-relaxed">Change text, mission statements, and external links.</p>
         </Link>
 
