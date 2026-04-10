@@ -1,17 +1,1 @@
-.env:
-# Connect to Supabase via connection pooling
-DATABASE_URL=""
-
-# Direct connection to the database. Used for migrations
-DIRECT_URL=""
-
-SUPABASE_SERVICE_ROLE_KEY=""
-
-NEXT_PUBLIC_SUPABASE_URL=""
-NEXT_PUBLIC_SUPABASE_ANON_KEY=""
-
-SMTP_HOST=
-SMTP_PORT=
-SMTP_USER=
-SMTP_PASS=
-FROM_EMAIL=
+...
