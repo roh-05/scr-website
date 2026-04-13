@@ -101,7 +101,7 @@ export default function AdminDashboard() {
                   </div>
                   <p className="text-xs text-text-muted mt-0.5">{item.subtitle}</p>
                 </div>
-                <span className="text-xs font-medium text-text-muted bg-surrey-beige px-3 py-1 rounded-full whitespace-nowrap self-start sm:self-auto">
+                <span className="text-xs font-medium text-text-muted bg-surrey-beige px-3 py-1 rounded-full whitespace-nowrap self-start sm:self-auto" suppressHydrationWarning>
                   {new Date(item.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </span>
               </li>

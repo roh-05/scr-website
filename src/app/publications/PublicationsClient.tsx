@@ -245,7 +245,7 @@ function ReportTableRow({
                 onClick={() => setIsExpanded(!isExpanded)}
                 className={`cursor-pointer transition-colors duration-200 group ${isExpanded ? 'bg-gray-50' : 'hover:bg-gray-50/70'}`}
             >
-                <td className="py-5 px-6 text-sm text-gray-500 font-medium whitespace-nowrap align-middle">
+                <td className="py-5 px-6 text-sm text-gray-500 font-medium whitespace-nowrap align-middle" suppressHydrationWarning>
                     {formatDate(p.date)}
                 </td>
 

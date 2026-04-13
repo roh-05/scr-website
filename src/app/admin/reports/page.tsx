@@ -265,7 +265,7 @@ export default function ReportsManagementPage() {
                   <tr key={report.id} className="hover:bg-surrey-light/50 transition-colors group">
                     <td className="py-4 px-6">
                       <p className="font-bold text-surrey-blue">{report.title}</p>
-                      <p className="text-sm text-text-muted mt-0.5">
+                      <p className="text-sm text-text-muted mt-0.5" suppressHydrationWarning>
                         By {report.authorNames} • {new Date(report.createdAt).toLocaleDateString()}
                       </p>
                     </td>

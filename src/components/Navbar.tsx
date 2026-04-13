@@ -41,10 +41,10 @@ export default function Navbar({ settings }: { settings?: any }) {
           <div className="flex items-center h-full">
             <Link href="/" className="flex-shrink-0 flex items-center gap-3 group focus:outline-none">
               <Image
-                src={settings?.logoUrl || "/scr-logo.jpg"}
+                src={settings?.logoUrl || "/scr-logo.png"}
                 alt="Surrey Capital Research Logo"
-                width={50}
-                height={50}
+                width={48}
+                height={48}
                 className="object-contain"
                 priority
               />

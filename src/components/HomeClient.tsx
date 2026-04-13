@@ -3,8 +3,13 @@
 import Link from "next/link";
 import { useRef } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import LinkedInFeed from "@/components/LinkedInFeed";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 // Helper to format the Prisma ENUMs (e.g., 'EQUITY_RESEARCH' -> 'Equity Research')
 const formatDepartment = (dept: string) => {
@@ -34,38 +39,74 @@ export default function HomeClient({
   const container = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    // Hero Entrance Animation
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-
-    tl.from(".hero-text", {
+    // 1. Hero Entrance Animation
+    const heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    heroTl.from(".hero-text", {
       y: 50,
       opacity: 0,
       duration: 1,
       stagger: 0.2,
-    })
-    .from(".stats-item", {
-      y: 30,
-      opacity: 0,
-      duration: 0.8,
-      stagger: 0.15,
-    }, "-=0.5")
-    .from(".mission-section", {
-      y: 30,
-      opacity: 0,
-      duration: 1,
-    }, "-=0.5")
-    .from(".dept-card", {
-      y: 40,
-      opacity: 0,
-      duration: 0.8,
-      stagger: 0.1,
-    }, "-=0.5");
+    });
+
+    // 2. Stats Section - Count up numbers when in view
+    const statElements = gsap.utils.toArray<HTMLElement>('.stat-number');
+    statElements.forEach((el) => {
+      const target = Number(el.innerText) || 0;
+      el.innerText = '0'; // start at 0
+      const targetObj = { val: 0 };
+      gsap.to(targetObj, {
+        val: target,
+        duration: 2.5,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: ".stats-section",
+          start: "top 80%",
+        },
+        onUpdate: () => { 
+          el.innerText = Math.ceil(targetObj.val).toString(); 
+        }
+      });
+    });
+
+    // 3. Reveal elements on scroll
+    gsap.utils.toArray<HTMLElement>('.reveal-on-scroll').forEach(section => {
+      gsap.from(section, {
+        scrollTrigger: {
+          trigger: section,
+          start: "top 80%",
+        },
+        y: 40,
+        opacity: 0,
+        duration: 1,
+        ease: "power3.out"
+      });
+    });
+
+    gsap.utils.toArray<HTMLElement>('.reveal-card').forEach((card, i) => {
+        gsap.from(card, {
+          scrollTrigger: {
+            trigger: card,
+            start: "top 85%",
+          },
+          y: 40,
+          opacity: 0,
+          duration: 0.8,
+          delay: i * 0.1,
+          ease: "power3.out"
+        });
+      });
+
   }, { scope: container });
 
   return (
     <div className="flex flex-col min-h-screen" ref={container}>
       {/* 1. Hero Section (Centered Layout) */}
       <section className="bg-surrey-blue text-white py-24 lg:py-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden flex items-center justify-center min-h-[70vh]">
+        {/* Animated Background Nodes */}
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-surrey-gold/10 rounded-full blur-3xl animate-float-node"></div>
+        <div className="absolute top-2/3 right-1/4 w-96 h-96 bg-surrey-gold/10 rounded-full blur-3xl animate-float-node" style={{ animationDelay: "2s" }}></div>
+        <div className="absolute bottom-10 left-1/3 w-72 h-72 bg-white/5 rounded-full blur-2xl animate-float-node" style={{ animationDelay: "4s" }}></div>
+        
         <div className="max-w-4xl mx-auto relative z-10 text-center">
           <h1 className="hero-text text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-8 leading-tight">
             {settings?.heroTitle || "Student-Led Financial Excellence"}
@@ -92,20 +133,21 @@ export default function HomeClient({
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 pointer-events-none"></div>
       </section>
 
+
       {/* 2. Credibility Statistics Bar */}
-      <section className="bg-surrey-blue text-white py-14 border-y border-surrey-gold/30">
+      <section className="stats-section bg-surrey-blue text-white py-14 border-b border-surrey-gold/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-surrey-gold/30">
             <div className="stats-item pt-4 md:pt-0">
-              <div className="text-5xl md:text-6xl font-black text-surrey-gold mb-3 drop-shadow-md">{activeMembersCount}</div>
+              <div className="stat-number text-5xl md:text-6xl font-black text-surrey-gold mb-3 drop-shadow-md">{activeMembersCount}</div>
               <div className="text-sm md:text-base uppercase tracking-[0.2em] text-gray-300 font-bold">Active Analysts</div>
             </div>
             <div className="stats-item pt-4 md:pt-0">
-              <div className="text-5xl md:text-6xl font-black text-surrey-gold mb-3 drop-shadow-md">{reportsCount}</div>
+              <div className="stat-number text-5xl md:text-6xl font-black text-surrey-gold mb-3 drop-shadow-md">{reportsCount}</div>
               <div className="text-sm md:text-base uppercase tracking-[0.2em] text-gray-300 font-bold">Published Reports</div>
             </div>
             <div className="stats-item pt-4 md:pt-0">
-              <div className="text-5xl md:text-6xl font-black text-surrey-gold mb-3 drop-shadow-md">{alumniCount}</div>
+              <div className="stat-number text-5xl md:text-6xl font-black text-surrey-gold mb-3 drop-shadow-md">{alumniCount}</div>
               <div className="text-sm md:text-base uppercase tracking-[0.2em] text-gray-300 font-bold">Total Alumni</div>
             </div>
           </div>
@@ -113,7 +155,7 @@ export default function HomeClient({
       </section>
 
       {/* 3. Mission Statement */}
-      <section className="mission-section py-20 bg-surrey-light px-4 sm:px-6 lg:px-8">
+      <section className="reveal-on-scroll mission-section py-20 bg-surrey-light px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl font-bold text-surrey-blue mb-8">
             {settings?.missionTitle || "Our Mission"}
@@ -125,7 +167,7 @@ export default function HomeClient({
       </section>
 
       {/* 4. Department Highlights */}
-      <section className="py-24 bg-white px-4 sm:px-6 lg:px-8">
+      <section className="reveal-on-scroll py-24 bg-white px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-end mb-16">
             <h2 className="text-4xl font-bold text-surrey-blue">Research Departments</h2>
@@ -141,7 +183,8 @@ export default function HomeClient({
               { name: "Quantitative Research", desc: "Data-driven trading strategies, factor models, and algorithmic frameworks.", slug: "quantitative-research" },
               { name: "Economic Research", desc: "Macroeconomic forecasting, central bank policy analysis, and geopolitical research.", slug: "economic-research" },
             ].map((dept) => (
-              <div key={dept.name} className="dept-card bg-surrey-light rounded-xl p-8 border-t-4 border-surrey-gold shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col h-full">
+              <div key={dept.name} className="reveal-card bg-surrey-light rounded-xl p-8 border-t-4 border-surrey-gold shadow-sm hover:shadow-[0_10px_30px_rgba(172,151,65,0.15)] hover:-translate-y-2 transition-all duration-300 flex flex-col h-full relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-br from-surrey-gold/0 to-surrey-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <h3 className="text-2xl font-bold text-surrey-blue mb-4">{dept.name}</h3>
                 <p className="text-body-text/80 mb-8 text-base flex-grow">{dept.desc}</p>
                 <Link href={`/departments/${dept.slug}`} className="text-surrey-blue font-bold text-base hover:text-surrey-gold transition-colors inline-block mt-auto">
@@ -154,11 +197,11 @@ export default function HomeClient({
       </section>
 
       {/* 5. Featured Publications & LinkedIn (Split Layout) */}
-      <section className="py-20 bg-surrey-light px-4 sm:px-6 lg:px-8">
+      <section className="reveal-on-scroll py-20 bg-surrey-light px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16">
 
           {/* Featured Publications (Database Driven) */}
-          <div className="dept-card">
+          <div>
             <h2 className="text-3xl font-bold text-surrey-blue mb-8">Latest Publications</h2>
             <div className="space-y-6">
               {recentReports.length > 0 ? (
@@ -168,7 +211,7 @@ export default function HomeClient({
                       <span className="text-xs font-bold uppercase tracking-wider text-surrey-gold">
                         {formatDepartment(pub.department)}
                       </span>
-                      <span className="text-xs text-text-muted">
+                      <span className="text-xs text-text-muted" suppressHydrationWarning>
                         {new Date(pub.createdAt).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
                       </span>
                     </div>
@@ -197,7 +240,7 @@ export default function HomeClient({
           </div>
 
           {/* Custom JSON LinkedIn Feed */}
-          <div className="flex flex-col h-full dept-card">
+          <div className="flex flex-col h-full">
             <h2 className="text-3xl font-bold text-surrey-blue mb-8">Latest Updates</h2>
             <div className="flex-1 min-h-0 bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
               <LinkedInFeed />
@@ -208,7 +251,7 @@ export default function HomeClient({
       </section>
 
       {/* 6. Call to Action */}
-      <section className="bg-surrey-blue text-white py-24 text-center px-4 sm:px-6 lg:px-8 dept-card relative overflow-hidden">
+      <section className="reveal-on-scroll bg-surrey-blue text-white py-24 text-center px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none"></div>
         <div className="relative z-10">
           <h2 className="text-4xl lg:text-5xl font-extrabold mb-6">

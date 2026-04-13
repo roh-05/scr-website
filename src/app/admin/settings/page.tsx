@@ -60,6 +60,7 @@ export default function SettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCaching, setIsCaching] = useState(false);
   const [cacheProgress, setCacheProgress] = useState("");
+  const [isMounted, setIsMounted] = useState(false);
   
   // State to hold all CMS data
   const [data, setData] = useState<any>({
@@ -128,6 +129,7 @@ export default function SettingsPage() {
       setIsLoading(false);
     }
     loadSettings();
+    setIsMounted(true);
   }, []);
 
   const handleRebuildCache = async () => {
@@ -369,7 +371,7 @@ export default function SettingsPage() {
                 </div>
                  <div className="space-y-2">
                   <label className="label">Logo URL</label>
-                  <input type="text" name="logoUrl" value={data.logoUrl || ""} onChange={handleChange} className="input" placeholder="/logo.svg" />
+                  <input type="text" name="logoUrl" value={data.logoUrl || ""} onChange={handleChange} className="input" placeholder="/scr-logo.png" />
                 </div>
                 <div className="space-y-2">
                   <label className="label">Footer Copyright Text</label>
@@ -640,7 +642,7 @@ export default function SettingsPage() {
 
             <section className="bg-white p-8 rounded-2xl border border-surrey-grey/40 shadow-sm overflow-hidden">
                 <h2 className="text-lg font-bold text-surrey-blue mb-6">Live Branding Preview</h2>
-                {data.headingFont && data.bodyFont && (
+                {isMounted && data.headingFont && data.bodyFont && (
                   <link href={`https://fonts.googleapis.com/css2?family=${data.headingFont.replace(/ /g, '+')}:wght@400;700&family=${data.bodyFont.replace(/ /g, '+')}:wght@400;700&display=swap`} rel="stylesheet" />
                 )}
                 <div 

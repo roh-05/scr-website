@@ -39,10 +39,10 @@ export default function Footer({ settings }: { settings?: any }) {
           <div className="space-y-6">
             <Link href="/" className="flex items-center gap-3 group focus:outline-none">
               <Image
-                src={settings?.logoUrl || "/scr-logo.jpg"}
+                src={settings?.logoUrl || "/scr-logo.png"}
                 alt="Surrey Capital Research Logo"
-                width={45}
-                height={45}
+                width={44}
+                height={44}
                 className="object-contain"
               />
               <div className="flex flex-col">
@@ -151,7 +151,7 @@ export default function Footer({ settings }: { settings?: any }) {
 
         {/* Bottom Bar - Centered */}
         <div className="pt-8 border-t border-white/5 flex justify-center items-center">
-          <p className="text-gray-500 text-xs text-center">
+          <p className="text-gray-500 text-xs text-center" suppressHydrationWarning>
             {settings?.footerCopyright || `© ${currentYear} Surrey Capital Research. All rights reserved.`}
           </p>
         </div>
