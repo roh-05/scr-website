@@ -116,34 +116,32 @@ export default function Footer({ settings }: { settings?: any }) {
           {/* Location & Contact */}
           <div>
             <h3 className="text-surrey-gold font-bold uppercase tracking-wider text-xs mb-6">Get in Touch</h3>
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div className="flex gap-3 items-start">
                 <MapPin size={18} className="text-surrey-gold shrink-0 mt-0.5" />
-                <p className="text-gray-400 text-sm leading-relaxed whitespace-pre-line">
-                  {settings?.officeAddress || "University of Surrey\nGuildford, GU2 7XH\nUnited Kingdom"}
-                </p>
+                <div>
+                  <p className="text-gray-400 text-sm leading-relaxed whitespace-pre-line">
+                    {"Guildford, GU2 7XH\nUnited Kingdom"}
+                  </p>
+                  <p className="text-gray-500 text-xs italic mt-1">
+                    University of Surrey — affiliated society
+                  </p>
+                </div>
               </div>
-              <ul className="space-y-4 mt-2">
-                {footerLinks.resources.map((link) => (
-                  <li key={link.name}>
-                    {link.external ? (
-                      <a 
-                        href={link.href} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-gray-400 hover:text-white text-sm transition-colors flex items-center gap-2 group"
-                      >
-                        {link.name}
-                        <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </a>
-                    ) : (
-                      <Link href={link.href} className="text-gray-400 hover:text-white text-sm transition-colors">
-                        {link.name}
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
+              <a
+                href={`mailto:${settings?.contactEmail || "contact@surreycapitalresearch.com"}`}
+                className="flex items-center gap-3 text-gray-400 hover:text-white text-sm transition-colors group"
+              >
+                <Mail size={16} className="text-surrey-gold shrink-0" />
+                {settings?.contactEmail || "contact@surreycapitalresearch.com"}
+              </a>
+              <Link
+                href="/contact"
+                className="flex items-center gap-3 text-gray-400 hover:text-white text-sm transition-colors group"
+              >
+                <ExternalLink size={16} className="text-surrey-gold shrink-0" />
+                Apply / Join the team
+              </Link>
             </div>
           </div>
 

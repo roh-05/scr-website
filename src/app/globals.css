@@ -61,4 +61,21 @@
   .animate-float-node {
     animation: float-node 6s ease-in-out infinite;
   }
+
+  @keyframes pulse-ring {
+    0% { transform: scale(1); opacity: 0.8; }
+    70% { transform: scale(2.2); opacity: 0; }
+    100% { transform: scale(2.2); opacity: 0; }
+  }
+  .animate-pulse-ring {
+    animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+  }
+
+  @keyframes drift-grid {
+    0% { background-position: 0 0; }
+    100% { background-position: 40px 40px; }
+  }
+  .animate-drift-grid {
+    animation: drift-grid 8s linear infinite;
+  }
 }
