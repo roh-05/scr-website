@@ -7,6 +7,8 @@
   --color-surrey-light: #fafbf8;    /* Background: Off-White */
   
   /* New Secondary Colors */
+  --color-surrey-pale-navy: #EBF0F5; /* Pale Navy for section backgrounds */
+  --color-surrey-deep-navy: #263C55; /* Deep Navy for footers/dark emphasis */
   --color-surrey-beige: #e9e4d4;    /* Light Beige for alternating sections */
   --color-surrey-grey: #bfc5ca;     /* Light Blue-Grey */
   --color-text-muted: #7b8797;      /* Medium Grey for metadata/borders */

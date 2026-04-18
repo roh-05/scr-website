@@ -70,7 +70,6 @@ export default function HomeClient({
     tl.from(".hero-eyebrow", { y: 14, opacity: 0, duration: 0.6 })
       .from(".hero-title", { y: 52, opacity: 0, duration: 1.1 }, "-=0.3")
       .from(".hero-body", { y: 24, opacity: 0, duration: 0.8 }, "-=0.5")
-      .from(".hero-pills > *", { y: 12, opacity: 0, duration: 0.4, stagger: 0.08 }, "-=0.3")
       .from(".hero-ctas > *", { y: 16, opacity: 0, duration: 0.5, stagger: 0.12 }, "-=0.3");
 
     // Stats count-up on scroll
@@ -178,7 +177,7 @@ export default function HomeClient({
               "Surrey Capital Research bridges the gap between academic theory and institutional market reality through rigorous, unbiased analysis."}
           </p>
 
-          <div className="hero-ctas hero-pills flex flex-wrap gap-4">
+          <div className="hero-ctas flex flex-wrap gap-4">
             <Link
               href="/publications"
               className="bg-surrey-gold text-surrey-blue px-8 py-3.5 text-sm font-bold uppercase tracking-wider border border-surrey-gold hover:bg-transparent hover:text-surrey-gold transition-colors duration-200"
@@ -196,7 +195,7 @@ export default function HomeClient({
       </section>
 
       {/* ─── STATS BAND ────────────────────────────────────────────────── */}
-      <section className="stats-section bg-surrey-blue border-t border-surrey-gold/15 py-16">
+      <section className="stats-section bg-white border-t border-surrey-gold/20 py-16">
         <div className="max-w-5xl mx-auto px-4 grid grid-cols-3">
           {[
             { label: "Active Analysts", value: activeMembersCount, animate: true },
@@ -219,7 +218,7 @@ export default function HomeClient({
                   />
                 )}
               </div>
-              <div className="font-mono text-white/70 text-[13px] uppercase tracking-[0.2em]">
+              <div className="font-mono text-surrey-blue/60 text-[13px] uppercase tracking-[0.2em]">
                 {s.label}
               </div>
             </div>
@@ -420,7 +419,7 @@ export default function HomeClient({
       >
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-surrey-gold/35 to-transparent" />
         <div className="max-w-3xl mx-auto relative z-10">
-          {/* Animated gold rule */}
+          {/* Animated rule */}
           <div className="mb-10 overflow-hidden">
             <div
               className="cta-rule h-px bg-surrey-gold mx-auto"
@@ -445,7 +444,7 @@ export default function HomeClient({
           </p>
           <Link
             href="/contact"
-            className="bg-surrey-gold text-surrey-blue px-10 py-4 font-bold text-sm uppercase tracking-wider border border-surrey-gold hover:bg-transparent hover:text-surrey-gold transition-colors inline-block"
+            className="bg-surrey-blue text-white px-10 py-4 font-bold text-sm uppercase tracking-wider border border-surrey-blue hover:bg-transparent hover:text-surrey-blue transition-colors inline-block"
           >
             Apply Now
           </Link>
