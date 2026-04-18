@@ -444,7 +444,7 @@ export default function HomeClient({
           </p>
           <Link
             href="/contact"
-            className="bg-surrey-blue text-white px-10 py-4 font-bold text-sm uppercase tracking-wider border border-surrey-blue hover:bg-transparent hover:text-surrey-blue transition-colors inline-block"
+            className="bg-surrey-gold text-surrey-blue px-8 py-3.5 text-sm font-bold uppercase tracking-wider border border-surrey-gold hover:bg-transparent hover:text-surrey-gold transition-colors duration-200 inline-block"
           >
             Apply Now
           </Link>
