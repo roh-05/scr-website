@@ -11,13 +11,8 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-// Helper to format the Prisma ENUMs (e.g., 'EQUITY_RESEARCH' -> 'Equity Research')
-const formatDepartment = (dept: string) => {
-  return dept
-    .split('_')
-    .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
-    .join(' ');
-};
+const formatDepartment = (dept: string) =>
+  dept.split("_").map((w) => w.charAt(0) + w.slice(1).toLowerCase()).join(" ");
 
 interface HomeClientProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -29,6 +24,33 @@ interface HomeClientProps {
   reportsCount: number;
 }
 
+const DEPARTMENTS = [
+  {
+    num: "01",
+    name: "Equity Research",
+    desc: "Fundamental analysis, financial modelling, and investment recommendations on listed equities.",
+    slug: "equity-research",
+  },
+  {
+    num: "02",
+    name: "Mergers & Acquisitions",
+    desc: "Strategic rationale, synergy analysis, and financial structuring of major corporate events.",
+    slug: "ma",
+  },
+  {
+    num: "03",
+    name: "Quantitative Research",
+    desc: "Data-driven trading strategies, factor models, and algorithmic frameworks.",
+    slug: "quantitative-research",
+  },
+  {
+    num: "04",
+    name: "Economic Research",
+    desc: "Macro forecasting, central bank policy analysis, and geopolitical market research.",
+    slug: "economic-research",
+  },
+];
+
 export default function HomeClient({
   settings,
   recentReports,
@@ -39,156 +61,168 @@ export default function HomeClient({
   const container = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    // 1. Hero Entrance Animation
-    const heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
-    heroTl.from(".hero-text", {
-      y: 50,
-      opacity: 0,
-      duration: 1,
-      stagger: 0.2,
-    });
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    tl.from(".hero-eyebrow", { y: 14, opacity: 0, duration: 0.6 })
+      .from(".hero-title", { y: 52, opacity: 0, duration: 1.1 }, "-=0.3")
+      .from(".hero-body", { y: 24, opacity: 0, duration: 0.8 }, "-=0.5")
+      .from(".hero-ctas > *", { y: 16, opacity: 0, duration: 0.5, stagger: 0.12 }, "-=0.4");
 
-    // 2. Stats Section - Count up numbers when in view
-    const statElements = gsap.utils.toArray<HTMLElement>('.stat-number');
-    statElements.forEach((el) => {
-      const target = Number(el.innerText) || 0;
-      el.innerText = '0'; // start at 0
-      const targetObj = { val: 0 };
-      gsap.to(targetObj, {
+    // Stats count-up on scroll
+    gsap.utils.toArray<HTMLElement>(".stat-number").forEach((el) => {
+      const target = Number(el.dataset.value) || 0;
+      const obj = { val: 0 };
+      gsap.to(obj, {
         val: target,
         duration: 2.5,
         ease: "power2.out",
-        scrollTrigger: {
-          trigger: ".stats-section",
-          start: "top 80%",
-        },
-        onUpdate: () => { 
-          el.innerText = Math.ceil(targetObj.val).toString(); 
-        }
+        scrollTrigger: { trigger: ".stats-section", start: "top 80%" },
+        onUpdate: () => { el.innerText = Math.ceil(obj.val).toString(); },
       });
     });
 
-    // 3. Reveal elements on scroll
-    gsap.utils.toArray<HTMLElement>('.reveal-on-scroll').forEach(section => {
-      gsap.from(section, {
-        scrollTrigger: {
-          trigger: section,
-          start: "top 80%",
-        },
-        y: 40,
-        opacity: 0,
-        duration: 1,
-        ease: "power3.out"
+    gsap.utils.toArray<HTMLElement>(".reveal-on-scroll").forEach((el) => {
+      gsap.from(el, {
+        scrollTrigger: { trigger: el, start: "top 82%" },
+        y: 40, opacity: 0, duration: 1, ease: "power3.out",
       });
     });
 
-    gsap.utils.toArray<HTMLElement>('.reveal-card').forEach((card, i) => {
-        gsap.from(card, {
-          scrollTrigger: {
-            trigger: card,
-            start: "top 85%",
-          },
-          y: 40,
-          opacity: 0,
-          duration: 0.8,
-          delay: i * 0.1,
-          ease: "power3.out"
-        });
+    gsap.utils.toArray<HTMLElement>(".reveal-card").forEach((card, i) => {
+      gsap.from(card, {
+        scrollTrigger: { trigger: card, start: "top 88%" },
+        y: 32, opacity: 0, duration: 0.7, delay: i * 0.08, ease: "power3.out",
       });
-
+    });
   }, { scope: container });
 
   return (
     <div className="flex flex-col min-h-screen" ref={container}>
-      {/* 1. Hero Section (Centered Layout) */}
-      <section className="bg-surrey-blue text-white py-24 lg:py-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden flex items-center justify-center min-h-[70vh]">
-        {/* Animated Background Nodes */}
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-surrey-gold/10 rounded-full blur-3xl animate-float-node"></div>
-        <div className="absolute top-2/3 right-1/4 w-96 h-96 bg-surrey-gold/10 rounded-full blur-3xl animate-float-node" style={{ animationDelay: "2s" }}></div>
-        <div className="absolute bottom-10 left-1/3 w-72 h-72 bg-white/5 rounded-full blur-2xl animate-float-node" style={{ animationDelay: "4s" }}></div>
-        
-        <div className="max-w-4xl mx-auto relative z-10 text-center">
-          <h1 className="hero-text text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-8 leading-tight">
-            {settings?.heroTitle || "Student-Led Financial Excellence"}
+
+      {/* ─── HERO ──────────────────────────────────────────────────────── */}
+      <section className="bg-surrey-blue min-h-[80vh] flex items-center relative">
+        <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
+          <div className="hero-eyebrow inline-flex items-center gap-3 mb-8 justify-center">
+            <span className="block w-8 h-px bg-surrey-gold shrink-0" />
+            <span className="font-mono text-surrey-gold text-[11px] uppercase tracking-[0.2em]">
+              University of Surrey
+            </span>
+            <span className="block w-8 h-px bg-surrey-gold shrink-0" />
+          </div>
+
+          <h1 className="hero-title font-serif text-white font-bold leading-[1.05] tracking-tight mb-8 text-6xl md:text-7xl lg:text-8xl">
+            {settings?.heroTitle ?? (
+              <>Student&#8209;Led<br />Financial<br />Excellence</>
+            )}
           </h1>
-          <p className="hero-text text-xl md:text-2xl mb-12 text-gray-300 leading-relaxed max-w-2xl mx-auto">
-            {settings?.heroSubtitle || "Surrey Capital Research is the premier student-led financial organization bridging the gap between academic theory and institutional market reality."}
+
+          <p className="hero-body text-white/60 text-lg leading-relaxed mb-12 max-w-xl mx-auto">
+            {settings?.heroSubtitle ??
+              "Surrey Capital Research bridges the gap between academic theory and institutional market reality through rigorous, unbiased analysis."}
           </p>
-          <div className="hero-text flex flex-wrap justify-center gap-6">
+
+          <div className="hero-ctas flex flex-wrap gap-4 justify-center">
             <Link
               href="/publications"
-              className="bg-surrey-gold text-surrey-blue px-10 py-4 rounded-md font-bold text-lg hover:bg-[#c2aa4a] transition-all shadow-[0_0_20px_rgba(184,153,60,0.4)] hover:shadow-[0_0_30px_rgba(184,153,60,0.6)]"
+              className="bg-surrey-gold text-surrey-blue px-8 py-3.5 text-sm font-bold uppercase tracking-wider hover:bg-[#c2aa4a] transition-colors"
             >
               Read Our Research
             </Link>
             <Link
               href="/departments"
-              className="bg-transparent border-2 border-surrey-gold text-surrey-gold px-10 py-4 rounded-md font-bold text-lg hover:bg-surrey-gold hover:text-surrey-blue transition-colors shadow-[0_0_15px_rgba(0,0,0,0.2)]"
+              className="bg-white text-surrey-blue px-8 py-3.5 text-sm font-bold uppercase tracking-wider hover:bg-surrey-light transition-colors"
             >
-              Explore Departments
+              Our Departments
             </Link>
           </div>
         </div>
-        {/* Subtle gradient overlay to blend into the theme */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 pointer-events-none"></div>
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-surrey-gold/40 to-transparent" />
       </section>
 
+      {/* ─── STATS BAND ────────────────────────────────────────────────── */}
+      <section className="stats-section bg-[#f0ead8] border-b border-surrey-gold/20 py-12">
+        <div className="max-w-5xl mx-auto px-4 grid grid-cols-3 divide-x divide-surrey-gold/25">
+          {[
+            { label: "Active Analysts", value: activeMembersCount },
+            { label: "Published Reports", value: reportsCount },
+            { label: "Total Alumni", value: alumniCount },
+          ].map((s, i) => (
+            <div key={i} className="px-6 sm:px-10 text-center">
+              <div
+                className="font-mono text-surrey-blue font-bold stat-number text-4xl sm:text-5xl"
+                data-value={s.value}
+              >
+                {s.value}
+              </div>
+              <div className="text-text-muted text-[10px] uppercase tracking-[0.18em] mt-1.5 font-medium">
+                {s.label}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
-      {/* 2. Credibility Statistics Bar */}
-      <section className="stats-section bg-surrey-blue text-white py-14 border-b border-surrey-gold/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-surrey-gold/30">
-            <div className="stats-item pt-4 md:pt-0">
-              <div className="stat-number text-5xl md:text-6xl font-black text-surrey-gold mb-3 drop-shadow-md">{activeMembersCount}</div>
-              <div className="text-sm md:text-base uppercase tracking-[0.2em] text-gray-300 font-bold">Active Analysts</div>
-            </div>
-            <div className="stats-item pt-4 md:pt-0">
-              <div className="stat-number text-5xl md:text-6xl font-black text-surrey-gold mb-3 drop-shadow-md">{reportsCount}</div>
-              <div className="text-sm md:text-base uppercase tracking-[0.2em] text-gray-300 font-bold">Published Reports</div>
-            </div>
-            <div className="stats-item pt-4 md:pt-0">
-              <div className="stat-number text-5xl md:text-6xl font-black text-surrey-gold mb-3 drop-shadow-md">{alumniCount}</div>
-              <div className="text-sm md:text-base uppercase tracking-[0.2em] text-gray-300 font-bold">Total Alumni</div>
-            </div>
+      {/* ─── MISSION ───────────────────────────────────────────────────── */}
+      <section className="reveal-on-scroll bg-white py-24 lg:py-32 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="inline-flex items-center gap-3 mb-10">
+            <span className="w-8 h-px bg-surrey-gold shrink-0" />
+            <span className="font-mono text-surrey-gold text-[11px] uppercase tracking-[0.2em]">
+              {settings?.missionTitle ?? "Our Mission"}
+            </span>
           </div>
+          <blockquote className="font-serif text-surrey-blue font-semibold leading-[1.3] text-3xl md:text-4xl lg:text-[2.65rem]">
+            &ldquo;
+            {settings?.missionDescription ??
+              "We bridge the gap between academic theory and front-office reality — producing rigorous, unbiased market analysis and preparing the next generation of financial professionals."}
+            &rdquo;
+          </blockquote>
         </div>
       </section>
 
-      {/* 3. Mission Statement */}
-      <section className="reveal-on-scroll mission-section py-20 bg-surrey-light px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-surrey-blue mb-8">
-            {settings?.missionTitle || "Our Mission"}
-          </h2>
-          <p className="text-xl text-body-text leading-relaxed">
-            {settings?.missionDescription || "Surrey Capital Research is the University of Surrey's premier financial organization. We bridge the gap between academic theory and front-office reality by producing rigorous, unbiased market analysis."}
-          </p>
-        </div>
-      </section>
-
-      {/* 4. Department Highlights */}
-      <section className="reveal-on-scroll py-24 bg-white px-4 sm:px-6 lg:px-8">
+      {/* ─── DEPARTMENTS ───────────────────────────────────────────────── */}
+      <section className="reveal-on-scroll py-24 bg-surrey-light px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-end mb-16">
-            <h2 className="text-4xl font-bold text-surrey-blue">Research Departments</h2>
-            <Link href="/departments" className="text-surrey-gold font-semibold text-lg hover:underline hidden sm:block">
-              View all departments &rarr;
+          <div className="flex items-end justify-between mb-14">
+            <div>
+              <div className="inline-flex items-center gap-3 mb-4">
+                <span className="w-8 h-px bg-surrey-gold shrink-0" />
+                <span className="font-mono text-surrey-gold text-[11px] uppercase tracking-[0.2em]">
+                  Research Desks
+                </span>
+              </div>
+              <h2 className="font-serif text-surrey-blue text-4xl lg:text-5xl font-semibold">
+                Our Departments
+              </h2>
+            </div>
+            <Link
+              href="/departments"
+              className="hidden sm:inline-flex items-center gap-1.5 text-surrey-blue text-xs font-bold uppercase tracking-wider hover:text-surrey-gold transition-colors"
+            >
+              View all <span className="text-surrey-gold">→</span>
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { name: "Equity Research", desc: "Deep-dive fundamental analysis, financial modeling, and actionable investment recommendations.", slug: "equity-research" },
-              { name: "M&A", desc: "Strategic rationale, synergy analysis, and financial structuring of major corporate events.", slug: "ma" },
-              { name: "Quantitative Research", desc: "Data-driven trading strategies, factor models, and algorithmic frameworks.", slug: "quantitative-research" },
-              { name: "Economic Research", desc: "Macroeconomic forecasting, central bank policy analysis, and geopolitical research.", slug: "economic-research" },
-            ].map((dept) => (
-              <div key={dept.name} className="reveal-card bg-surrey-light rounded-xl p-8 border-t-4 border-surrey-gold shadow-sm hover:shadow-[0_10px_30px_rgba(172,151,65,0.15)] hover:-translate-y-2 transition-all duration-300 flex flex-col h-full relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-br from-surrey-gold/0 to-surrey-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <h3 className="text-2xl font-bold text-surrey-blue mb-4">{dept.name}</h3>
-                <p className="text-body-text/80 mb-8 text-base flex-grow">{dept.desc}</p>
-                <Link href={`/departments/${dept.slug}`} className="text-surrey-blue font-bold text-base hover:text-surrey-gold transition-colors inline-block mt-auto">
-                  Learn more &rarr;
+          {/* gap-px + bg colour = 1px gridlines */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-px bg-surrey-grey/35">
+            {DEPARTMENTS.map((dept) => (
+              <div
+                key={dept.name}
+                className="reveal-card group bg-white p-8 flex flex-col hover:bg-surrey-blue transition-colors duration-300"
+              >
+                <span className="font-mono text-[10px] text-surrey-gold/40 group-hover:text-surrey-gold/60 uppercase tracking-widest mb-6 transition-colors">
+                  {dept.num}
+                </span>
+                <h3 className="font-serif text-surrey-blue group-hover:text-white text-xl font-semibold mb-4 leading-snug transition-colors">
+                  {dept.name}
+                </h3>
+                <p className="text-body-text/55 group-hover:text-white/55 text-sm leading-relaxed flex-grow mb-8 transition-colors">
+                  {dept.desc}
+                </p>
+                <Link
+                  href={`/departments/${dept.slug}`}
+                  className="text-surrey-gold text-[11px] font-bold uppercase tracking-wider inline-flex items-center gap-1.5 group-hover:gap-3 transition-all mt-auto w-fit"
+                >
+                  Explore <span>→</span>
                 </Link>
               </div>
             ))}
@@ -196,78 +230,122 @@ export default function HomeClient({
         </div>
       </section>
 
-      {/* 5. Featured Publications & LinkedIn (Split Layout) */}
-      <section className="reveal-on-scroll py-20 bg-surrey-light px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16">
+      {/* ─── PUBLICATIONS + UPDATES ────────────────────────────────────── */}
+      <section className="reveal-on-scroll py-24 bg-white px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-[3fr_2fr] gap-16">
 
-          {/* Featured Publications (Database Driven) */}
+          {/* Publications */}
           <div>
-            <h2 className="text-3xl font-bold text-surrey-blue mb-8">Latest Publications</h2>
-            <div className="space-y-6">
+            <div className="inline-flex items-center gap-3 mb-4">
+              <span className="w-8 h-px bg-surrey-gold shrink-0" />
+              <span className="font-mono text-surrey-gold text-[11px] uppercase tracking-[0.2em]">Research</span>
+            </div>
+            <h2 className="font-serif text-surrey-blue text-3xl lg:text-4xl font-semibold mb-10">
+              Latest Publications
+            </h2>
+
+            <div className="border-t border-surrey-grey/40">
               {recentReports.length > 0 ? (
-                recentReports.map((pub) => (
-                  <div key={pub.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:border-surrey-gold hover:shadow-lg transition-all duration-300">
-                    <div className="flex justify-between items-start mb-3">
-                      <span className="text-xs font-bold uppercase tracking-wider text-surrey-gold">
-                        {formatDepartment(pub.department)}
-                      </span>
-                      <span className="text-xs text-text-muted" suppressHydrationWarning>
-                        {new Date(pub.createdAt).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
+                recentReports.map((pub, i) => (
+                  <div key={pub.id} className="reveal-card border-b border-surrey-grey/40 py-7 group">
+                    <div className="flex items-start justify-between gap-6">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-3">
+                          <span className="font-mono text-surrey-gold text-[10px] uppercase tracking-widest">
+                            {formatDepartment(pub.department)}
+                          </span>
+                          <span className="text-surrey-grey/60 text-[10px]">·</span>
+                          <span className="text-text-muted text-[10px]" suppressHydrationWarning>
+                            {new Date(pub.createdAt).toLocaleDateString("en-GB", {
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </span>
+                        </div>
+                        <h3 className="font-serif text-surrey-blue text-xl font-semibold leading-snug group-hover:text-surrey-gold/80 transition-colors">
+                          {pub.title}
+                        </h3>
+                        <a
+                          href={pub.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-surrey-blue hover:text-surrey-gold transition-colors mt-4"
+                        >
+                          Read Report <span className="text-surrey-gold">→</span>
+                        </a>
+                      </div>
+                      <span className="font-mono text-surrey-grey/40 text-sm shrink-0 pt-0.5">
+                        {String(i + 1).padStart(2, "0")}
                       </span>
                     </div>
-                    <h3 className="text-xl font-bold text-surrey-blue mb-4">{pub.title}</h3>
-                    <a 
-                      href={pub.fileUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="text-sm text-surrey-blue font-semibold hover:text-surrey-gold inline-flex items-center gap-1 transition-colors"
-                    >
-                      Read Report &rarr;
-                    </a>
                   </div>
                 ))
               ) : (
-                <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center text-text-muted">
-                  No publications have been uploaded yet. Check back soon!
+                <div className="py-12 text-center text-text-muted text-sm border-b border-surrey-grey/40">
+                  No publications yet — check back soon.
                 </div>
               )}
             </div>
+
             <div className="mt-10">
-              <Link href="/publications" className="inline-block bg-surrey-blue text-white px-8 py-3 rounded-md text-base font-bold hover:bg-[#2a3c50] transition-colors shadow-md hover:shadow-lg">
-                View Publication Archive
+              <Link
+                href="/publications"
+                className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-surrey-blue hover:text-surrey-gold transition-colors group"
+              >
+                View Full Archive
+                <span className="text-surrey-gold group-hover:translate-x-1 inline-block transition-transform">
+                  →
+                </span>
               </Link>
             </div>
           </div>
 
-          {/* Custom JSON LinkedIn Feed */}
-          <div className="flex flex-col h-full">
-            <h2 className="text-3xl font-bold text-surrey-blue mb-8">Latest Updates</h2>
-            <div className="flex-1 min-h-0 bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
-              <LinkedInFeed />
+          {/* Updates */}
+          <div>
+            <div className="inline-flex items-center gap-3 mb-4">
+              <span className="w-8 h-px bg-surrey-gold shrink-0" />
+              <span className="font-mono text-surrey-gold text-[11px] uppercase tracking-[0.2em]">Updates</span>
             </div>
+            <h2 className="font-serif text-surrey-blue text-3xl lg:text-4xl font-semibold mb-10">
+              Latest Updates
+            </h2>
+            <LinkedInFeed />
           </div>
 
         </div>
       </section>
 
-      {/* 6. Call to Action */}
-      <section className="reveal-on-scroll bg-surrey-blue text-white py-24 text-center px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none"></div>
-        <div className="relative z-10">
-          <h2 className="text-4xl lg:text-5xl font-extrabold mb-6">
-            {settings?.ctaHeading || "Ready to Join the Team?"}
+      {/* ─── CTA ───────────────────────────────────────────────────────── */}
+      <section
+        className="reveal-on-scroll bg-surrey-blue relative overflow-hidden py-28 text-center px-4 sm:px-6 lg:px-8"
+        style={{
+          backgroundImage: "radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+        }}
+      >
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-surrey-gold/35 to-transparent" />
+        <div className="max-w-3xl mx-auto relative z-10">
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <span className="w-8 h-px bg-surrey-gold shrink-0" />
+            <span className="font-mono text-surrey-gold text-[11px] uppercase tracking-[0.2em]">Join the Team</span>
+            <span className="w-8 h-px bg-surrey-gold shrink-0" />
+          </div>
+          <h2 className="font-serif text-white text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight mb-8">
+            {settings?.ctaHeading ?? "Ready to Join the Team?"}
           </h2>
-          <p className="text-xl text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed">
-            {settings?.ctaSubtext || "We are always looking for driven individuals with a passion for financial markets. Apply to join one of our research desks and gain hands-on experience in institutional-grade analysis."}
+          <p className="text-white/60 text-lg leading-relaxed mb-12 max-w-xl mx-auto">
+            {settings?.ctaSubtext ??
+              "We are always looking for driven individuals with a passion for financial markets. Apply to join one of our research desks."}
           </p>
           <Link
             href="/contact"
-            className="bg-surrey-gold text-surrey-blue px-10 py-4 rounded-md font-bold text-xl hover:bg-[#c2aa4a] transition-all shadow-[0_0_20px_rgba(184,153,60,0.4)] hover:shadow-[0_0_30px_rgba(184,153,60,0.6)] inline-block hover:-translate-y-1"
+            className="bg-surrey-gold text-surrey-blue px-10 py-4 font-bold text-sm uppercase tracking-wider hover:bg-[#c2aa4a] transition-colors inline-block"
           >
             Get in Touch
           </Link>
         </div>
       </section>
+
     </div>
   );
 }

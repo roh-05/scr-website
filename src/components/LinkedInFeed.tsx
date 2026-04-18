@@ -3,7 +3,7 @@ import updates from "@/data/updates.json";
 
 export default function LinkedInFeed() {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col h-full max-h-full overflow-hidden">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col overflow-hidden max-h-[480px]">
 
       {/* Header */}
       <div className="bg-[#fafbf8] border-b border-gray-200 p-5 flex items-center justify-between shrink-0">
